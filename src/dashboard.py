@@ -1,0 +1,54 @@
+#Dashboard
+#This py file will handle the dashboard section
+#This is the entry point, all file paths will be guided from here
+import sqlite3
+import os
+import logging #Logging will let us collect error logs from users
+from login_system import login
+from connection import database
+from connection import session
+
+#-------------------------------------------------------------------------
+#function to define basic logging for errors
+def setup_logging():
+    logging.basicConfig(
+        filename="app.log", #File name
+        level=logging.ERROR, #Write only errors
+        #See more at https://docs.python.org/3/library/logging.html
+        format='%(asctime)s | %(levelname)s | %(message)s | %(module)s'
+        )
+    
+#-------------------------------------------------------------------------
+    
+#main function of the program
+def main():
+    #start logging
+    setup_logging()
+    try:
+        con = database.connect() #connect to database
+        if con:
+            database.create_db(con) # create tables
+            loged_in = session.check_login() #check if user is loged in
+            if (loged_in):
+                print("user is loged in!!") 
+            else:
+                print("redirecting to log in page")
+                login.start_login()
+                #get current user (it will be only id when we have data from db
+                current_user = session.get_user()
+                print(f"Welcome {current_user}!!")
+            
+        else:
+            print("There was a problem while creating the tables")
+            
+    #if program crashes for other reason write to logfile
+    except Exception as e:
+        logging.exception("Critical Error: The application crashed")
+#-------------------------------------------------------------------------
+
+#start main if we are only at dashboard (run this if the file was executed directly)
+if __name__ == "__main__":
+    main()
+    
+
+
