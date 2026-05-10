@@ -10,14 +10,23 @@ import logging
 
 #first we will connect to DB -> session/financial_management.py
 def connect():
-    #Connect to db. If file not exists create it
     db_filepath = os.path.join("connection", "financial_management.db")
+    
+    #first time that will run it will create the db if not exist and tables
+    #we will use the variable below to store the filepath before the filepath
+    #is created to know if to run create_db(con) or not.
+    db_exists = os.path.exists(db_filepath)    
+    #Connect to db
     try:
-        con = sqlite3.connect(db_filepath)
+        con = sqlite3.connect(db_filepath) # it will create the db file if not exist
         cur = con.cursor()
         #Activate Foreign Keys
         cur.execute("PRAGMA foreign_keys = ON;")
         print("Database connection success")
+        
+        if not db_exists:
+            create_db(con) # create tables
+            
         return con
     except Exception:
         logging.exception("Couldnt connect to database")

@@ -27,7 +27,6 @@ def main():
     try:
         con = database.connect() #connect to database
         if con:
-            database.create_db(con) # create tables
             loged_in = session.check_login() #check if user is loged in
             if (loged_in):
                 print("user is loged in!!") 
