@@ -94,3 +94,117 @@ Traceback (most recent call last):
     auth.set_user(correct_username,correct_user_id)
     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TypeError: set_user() missing 1 required positional argument: 'role_id'
+2026-05-13 19:12:39,093 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 51, in main
+    app = FinanceApp() # create the object
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 28, in __init__
+    self.geometry(style.APP_DIMENSIONS) #Set dimensions of window
+                  ^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'config_and_styles' has no attribute 'APP_DIMENSIONS'. Did you mean: 'APP_DIMENTIONS'?
+2026-05-13 19:12:48,504 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 51, in main
+    app = FinanceApp() # create the object
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 28, in __init__
+    self.geometry(style.APP_DIMENSIONS) #Set dimensions of window
+                  ^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'config_and_styles' has no attribute 'APP_DIMENSIONS'. Did you mean: 'APP_DIMENTIONS'?
+2026-05-13 19:14:14,309 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 51, in main
+    app = FinanceApp() # create the object
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 28, in __init__
+    self.geometry(style.APP_DIMENSIONS) #Set dimensions of window
+                  ^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'config_and_styles' has no attribute 'APP_DIMENSIONS'. Did you mean: 'APP_DIMENTIONS'?
+2026-05-13 20:41:44,177 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 35, in main
+    root.title(style.APP_TITLE)
+               ^^^^^
+NameError: name 'style' is not defined. Did you mean: 'type'?
+2026-05-14 00:11:59,956 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 43, in main
+    login.build_login_gui(root)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 62, in build_login_gui
+    label=tk.Label(master, option=value)
+          ^^
+NameError: name 'tk' is not defined
+2026-05-14 00:13:29,681 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 43, in main
+    login.build_login_gui(root)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 62, in build_login_gui
+    label=tk.Label(master, option=value)
+          ^^
+NameError: name 'tk' is not defined
+2026-05-14 00:19:24,264 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 43, in main
+    login.build_login_gui(root)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 62, in build_login_gui
+    label=tk.Label(root, text="Login", font=(style.FONT, style.FONT_SIZE_TITLE))
+          ^^
+NameError: name 'tk' is not defined
+2026-05-14 00:29:20,038 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 43, in main
+    login.build_login_gui(root)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 67, in build_login_gui
+    input_user = tkEntry(root, text="Username", font=(style.FONT,style.FONT_SIZE_INPUT))
+                 ^^^^^^^
+NameError: name 'tkEntry' is not defined
+2026-05-14 00:31:42,258 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 43, in main
+    login.build_login_gui(root)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 68, in build_login_gui
+    tkEntry.pack(pady=20)
+    ^^^^^^^
+NameError: name 'tkEntry' is not defined
+2026-05-14 00:59:18,027 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 43, in main
+    login.build_login_gui(root)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 67, in build_login_gui
+    label=tk.Label(root, text="Login", font=(style.FONT, style.FONT_SIZE_TITLE))
+                                             ^^^^^^^^^^
+AttributeError: module 'config_and_styles' has no attribute 'FONT'
+2026-05-14 01:04:46,445 | ERROR | An error occurred during login. | login
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 23, in start_login
+    hashed_input = hashlib.sha256(input_password.encode()).hexdigest()
+                                  ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Entry' object has no attribute 'encode'
+2026-05-14 01:04:49,398 | ERROR | An error occurred during login. | login
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 23, in start_login
+    hashed_input = hashlib.sha256(input_password.encode()).hexdigest()
+                                  ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Entry' object has no attribute 'encode'
+2026-05-14 01:37:03,473 | ERROR | An error occurred during login. | login
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 55, in start_login
+    dashboard.build_dashboard_gui(root) # on corect credentials go to dashboard GUI
+    ^^^^^^^^^
+NameError: name 'dashboard' is not defined
+2026-05-14 01:37:05,134 | ERROR | An error occurred during login. | login
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 55, in start_login
+    dashboard.build_dashboard_gui(root) # on corect credentials go to dashboard GUI
+    ^^^^^^^^^
+NameError: name 'dashboard' is not defined
+2026-05-14 01:37:49,054 | ERROR | An error occurred during login. | login
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 56, in start_login
+    dashboard.build_dashboard_gui(root) # on corect credentials go to dashboard GUI
+                                  ^^^^
+NameError: name 'root' is not defined
