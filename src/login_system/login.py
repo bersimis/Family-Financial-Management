@@ -1,12 +1,13 @@
 #Login
 #This py file will handle the login section
-import sqlite3
 import logging
-from connection import session
+from login_system import auth
+username = "kwstas"
+password = "123"
 #-------------------------------------------------------------------------
 def start_login():
-    session.set_user("kwstas",1)
-    print("user and user_id are now set")
+    #Here we will connect user by checking the right credentials
+    auth.set_user("kwstas",1)
 
 #-------------------------------------------------------------------------
 

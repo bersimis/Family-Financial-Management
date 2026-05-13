@@ -5,14 +5,14 @@ import sqlite3
 import os
 import logging #Logging will let us collect error logs from users
 from login_system import login
-from connection import database
-from connection import session
+from database import database
+from login_system import auth
 
 #-------------------------------------------------------------------------
 #function to define basic logging for errors
 def setup_logging():
     logging.basicConfig(
-        filename="app.log", #File name
+        filename=os.path.join("logs", "app.log"), #File name
         level=logging.ERROR, #Write only errors
         #See more at https://docs.python.org/3/library/logging.html
         format='%(asctime)s | %(levelname)s | %(message)s | %(module)s'
@@ -22,20 +22,19 @@ def setup_logging():
     
 #main function of the program
 def main():
-    #start logging
-    setup_logging()
+    setup_logging() #start logging
     try:
         con = database.connect() #connect to database
         if con:
-            loged_in = session.check_login() #check if user is loged in
+            loged_in = auth.check_login() #check if user is loged in
             if (loged_in):
                 print("user is loged in!!") 
             else:
                 print("redirecting to log in page")
                 login.start_login()
                 #get current user (it will be only id when we have data from db
-                current_user = session.get_user()
-                print(f"Welcome {current_user}!!")
+                current_user, current_user_id = auth.get_user()
+                print(f"Welcome {current_user} with id:{current_user_id}!!")
             
         else:
             print("There was a problem while creating the tables")

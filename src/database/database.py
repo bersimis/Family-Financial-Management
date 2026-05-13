@@ -8,9 +8,10 @@ import logging
 
 #-------------------------------------------------------------------------
 
-#first we will connect to DB -> session/financial_management.py
+#first we will connect to DB
 def connect():
-    db_filepath = os.path.join("connection", "financial_management.db")
+    # Path updated to look inside the database folder relative to src
+    db_filepath = os.path.join("src", "database", "financial_management.db")
     
     #first time that will run it will create the db if not exist and tables
     #we will use the variable below to store the filepath before the filepath
@@ -53,14 +54,14 @@ def create_db(con):
             age INTEGER,
             FOREIGN KEY (role_id) REFERENCES roles (id) 
         );
-
+ 
         CREATE TABLE IF NOT EXISTS categories (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             type TEXT NOT NULL CHECK(type IN ('income', 'expense'))  /*We will check that only values income or expence will be inserted into the Db*/
                                                                      /*this ensures proper and acurate dada*/
         );
-
+ 
         CREATE TABLE IF NOT EXISTS transactions(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             category_id INTEGER NOT NULL,
@@ -75,5 +76,3 @@ def create_db(con):
     con.commit() #save changes
     
 #-----------------------------------------------------------------------
-    
-    
