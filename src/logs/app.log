@@ -1,0 +1,96 @@
+2026-05-13 13:54:32,684 | ERROR | Couldnt connect to database | database
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\database\database.py", line 22, in connect
+    con = sqlite3.connect(db_filepath) # it will create the db file if not exist
+sqlite3.OperationalError: unable to open database file
+2026-05-13 13:55:51,552 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 34, in main
+    login.start_login()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 16, in start_login
+    if con:
+       ^^^
+NameError: name 'con' is not defined
+2026-05-13 13:56:33,039 | ERROR | An error occurred during login. | login
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 26, in start_login
+    """, (input_user,input_passowrd))
+                     ^^^^^^^^^^^^^^
+NameError: name 'input_passowrd' is not defined. Did you mean: 'input_passwrod'?
+2026-05-13 13:56:33,039 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 37, in main
+    print(f"Welcome {current_user} with id:{current_user_id}!!")
+                                            ^^^^^^^^^^^^^^^
+NameError: name 'current_user_id' is not defined. Did you mean: 'current_user'?
+2026-05-13 13:57:09,469 | ERROR | An error occurred during login. | login
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 26, in start_login
+    """, (input_user,input_passowrd))
+                     ^^^^^^^^^^^^^^
+NameError: name 'input_passowrd' is not defined. Did you mean: 'input_passwrod'?
+2026-05-13 13:57:09,470 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 37, in main
+    print(f"Welcome {current_user} with id:{current_user_id}!!")
+                                            ^^^^^^^^^^^^^^^
+NameError: name 'current_user_id' is not defined. Did you mean: 'current_user'?
+2026-05-13 13:57:51,785 | ERROR | An error occurred during login. | login
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 22, in start_login
+    cur.execute("""
+    ~~~~~~~~~~~^^^^
+    SELECT id,username,role_id
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+        FROM users
+        ^^^^^^^^^^
+        WHERE usernmae=? AND password=?
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    """, (input_user,input_password))
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: usernmae
+2026-05-13 13:57:51,786 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 37, in main
+    print(f"Welcome {current_user} with id:{current_user_id}!!")
+                                            ^^^^^^^^^^^^^^^
+NameError: name 'current_user_id' is not defined. Did you mean: 'current_user'?
+2026-05-13 13:58:37,467 | ERROR | An error occurred during login. | login
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 22, in start_login
+    cur.execute("""
+    ~~~~~~~~~~~^^^^
+    SELECT id,username,role_id
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+        FROM users
+        ^^^^^^^^^^
+        WHERE usernmae=? AND password=?
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    """, (input_user,input_password))
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: usernmae
+2026-05-13 13:58:37,467 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 37, in main
+    print(f"Welcome {current_user} with id:{current_user_id}!!")
+                                            ^^^^^^^^^^^^^^^
+NameError: name 'current_user_id' is not defined. Did you mean: 'current_user'?
+2026-05-13 13:59:33,086 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 37, in main
+    print(f"Welcome {current_user} with id:{current_user_id}!!")
+                                            ^^^^^^^^^^^^^^^
+NameError: name 'current_user_id' is not defined. Did you mean: 'current_user'?
+2026-05-13 14:01:49,941 | ERROR | Critical Error: The application crashed | dashboard
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\dashboard.py", line 37, in main
+    print(f"Welcome {current_user} with id:{current_user_id}!!")
+                                            ^^^^^^^^^^^^^^^
+NameError: name 'current_user_id' is not defined. Did you mean: 'current_user'?
+2026-05-13 14:10:25,649 | ERROR | An error occurred during login. | login
+Traceback (most recent call last):
+  File "C:\Users\Bersimis-pc\Desktop\PROJECTS\GitHub Projects\Domestic-Financial-Management\src\login_system\login.py", line 35, in start_login
+    auth.set_user(correct_username,correct_user_id)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: set_user() missing 1 required positional argument: 'role_id'

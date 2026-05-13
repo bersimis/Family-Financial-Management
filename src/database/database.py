@@ -1,4 +1,4 @@
-#Connection
+#database.py
 #This py file will handle the connection that is needed in order
 #to connect to database
 import sqlite3
@@ -11,7 +11,7 @@ import logging
 #first we will connect to DB
 def connect():
     # Path updated to look inside the database folder relative to src
-    db_filepath = os.path.join("src", "database", "financial_management.db")
+    db_filepath = os.path.join("database", "financial_management.db")
     
     #first time that will run it will create the db if not exist and tables
     #we will use the variable below to store the filepath before the filepath

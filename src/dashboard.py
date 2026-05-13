@@ -1,4 +1,4 @@
-#Dashboard
+#Dashboard.py
 #This py file will handle the dashboard section
 #This is the entry point, all file paths will be guided from here
 import sqlite3
@@ -33,8 +33,9 @@ def main():
                 print("redirecting to log in page")
                 login.start_login()
                 #get current user (it will be only id when we have data from db
-                current_user, current_user_id = auth.get_user()
-                print(f"Welcome {current_user} with id:{current_user_id}!!")
+                active_user = auth.get_user()
+                if active_user:
+                    print(f"Welcome {active_user.username} with id:{active_user.id}!!")
             
         else:
             print("There was a problem while creating the tables")
