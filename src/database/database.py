@@ -80,14 +80,14 @@ def create_db(con):
             ('editor'), 
             ('viewer');
             
-        /*Insert Power user named admin with password admin on first program run*/
+        /* Insert Power user named admin with password 'admin' (hashed) on first program run */
         INSERT OR IGNORE INTO users (username, password, role_id, birth_year, age) 
         VALUES (
             'admin', 
-            'admin', 
-            (SELECT id FROM roles WHERE name = 'admin'), /* Βρίσκει αυτόματα το ID του ρόλου admin! */
-            1900, /*admin has fake data*/
-            2026-1900 /*admin has fake data*/
+            '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', /* This is hashed */
+            (SELECT id FROM roles WHERE name = 'admin'), 
+            1900, 
+            2026-1900 
         );
     """)
     con.commit() #save changes

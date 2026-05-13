@@ -4,6 +4,7 @@ import sqlite3
 import logging
 import string # for the use of pool logic
 import datetime # we need to find (thisYear) for age logic
+import hashlib # we will hash (encrypt) the password for security reasons
 from database import database
 from login_system import auth
 
@@ -22,9 +23,15 @@ def register():
     correct_password = check_password(password_input)
     correct_birth_year = check_birthyear(birth_year_input)
     role_id = 3 # All new users will log in as viewers id=3 until admin changes their access
+    user_age = 0
     if correct_birth_year:
         #calculate users age
         user_age = datetime.datetime.now().year - birth_year_input
+    hashed_password = None
+    if correct_password:
+        #hash (encrypt) the password for security reasons
+        #password_input below represents current password before hashing 
+        hashed_password = hashlib.sha256(password_input.encode()).hexdigest()
         
     if (correct_username and correct_password and correct_birth_year):
         
@@ -35,7 +42,7 @@ def register():
                 cur.execute("""
                     INSERT INTO users (username,password,birth_year,age,role_id)
                     VALUES (?,?,?,?,?)
-                """,(user_input,password_input,birth_year_input,user_age,role_id))
+                """,(user_input,hashed_password,birth_year_input,user_age,role_id))
                 con.commit()
             except Exception as e:
                 logging.exception("An error occured during register.")
@@ -51,7 +58,7 @@ def check_username(user_input):
     valid_username = string.ascii_letters + string.digits
     #run loop to check it
     for char in user_input:
-        #if characher is not inside the pool (valid char) then return false
+        #if character is not inside the pool (valid char) then return false
         if char not in valid_username:
             print("You must put letters and numbers only")
             return False
@@ -68,7 +75,7 @@ def check_password(password_input):
         return False
     
     #create a pool to check data from user to validate the password
-    #We dont want sertain special chars becose we want to protect from
+    #We dont want certain special characters because we want to protect from
     #SQL injection
     valid_password = string.ascii_letters + string.digits + "!@#$%"
     
