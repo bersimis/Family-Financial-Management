@@ -72,6 +72,23 @@ def create_db(con):
             FOREIGN KEY (category_id) REFERENCES categories (id), /* FK of categories*/
             FOREIGN KEY (created_by) REFERENCES users (id)        /* FK of users */
         );
+
+            
+        /*Insert the rolles in the table rolles */
+         INSERT OR IGNORE INTO roles (name) VALUES 
+            ('admin'), 
+            ('editor'), 
+            ('viewer');
+            
+        /*Insert Power user named admin with password admin on first program run*/
+        INSERT OR IGNORE INTO users (username, password, role_id, birth_year, age) 
+        VALUES (
+            'admin', 
+            'admin', 
+            (SELECT id FROM roles WHERE name = 'admin'), /* Βρίσκει αυτόματα το ID του ρόλου admin! */
+            1900, /*admin has fake data*/
+            2026-1900 /*admin has fake data*/
+        );
     """)
     con.commit() #save changes
     

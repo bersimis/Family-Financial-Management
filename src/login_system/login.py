@@ -5,20 +5,20 @@ import logging
 from login_system import auth
 from database import database
 
-input_user = "kwstas"
-input_password = "123456"
+input_user = "admin"
+input_password = "admin"
 
 #-------------------------------------------------------------------------
 def start_login():
-    #Here we will connect user by checking the right credentials
+    #Here we will connect user by checking the right credentials after button click
     con = database.connect() #First we will connect to database
     
     if con:
         #make the cursor
         cur = con.cursor()
-
+        
         try:
-            #execute the querie
+            #execute the query
             cur.execute("""
             SELECT id,username,role_id
                 FROM users
