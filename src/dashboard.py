@@ -1,85 +1,352 @@
-#Dashboard.py
-#This py file will handle the dashboard section
-#This is the entry point, all file paths will be guided from here
-import sqlite3
+# Dashboard.py
+# This py file will handle the dashboard section and main application shell.
+# This is the entry point; all file paths and views are routed from here.
 import os
-import logging #Logging will let us collect error logs from users
+import logging
 import tkinter as tk
-from login_system import login
+from tkinter import messagebox
+#Import database module to communicate with SQLite database
 from database import database
+#Import auth module to manage logged-in user session
 from login_system import auth
-#import GUI FILES
+from login_system import login
+#Import GUI frames and windows
+from finance_files.transactions import TransactionsFrame
+from finance_files.categories import CategoriesWindow
+#Import global configuration and styles
 import config_and_styles as style
 
 
 #-------------------------------------------------------------------------
-#function to define basic logging for errors
+#Set up logging for error collection
 def setup_logging():
+    #Create logs directory if it does not exist
+    if not os.path.exists("logs"):
+        os.makedirs("logs")
+
     logging.basicConfig(
-        filename=os.path.join("logs", "app.log"), #File name
-        level=logging.ERROR, #Write only errors
-        #See more at https://docs.python.org/3/library/logging.html
+        filename=os.path.join("logs", "app.log"),
+        level=logging.ERROR,
         format='%(asctime)s | %(levelname)s | %(message)s | %(module)s'
-        )
-    
+    )
+
+
 #-------------------------------------------------------------------------
-    
-#main function of the program
+#Main class responsible for the main window and top-level UI shell
+class Dashboard:
+
+    def __init__(self, root=None):
+        #If root is not provided, create a new Tkinter window (standalone mode)
+        if root is None:
+            self.root = tk.Tk()
+            self.root.title(style.APP_TITLE)
+            self.root.geometry(style.APP_DIMENSIONS)
+            self.root.resizable(False, False)
+            self.is_standalone = True
+        else:
+            self.root = root
+            self.is_standalone = False
+
+        #Apply global background color to root window
+        self.root.configure(bg=style.COLOR_BG_MAIN)
+
+        #Clear existing widgets from root if not in standalone mode (e.g. from login screen).
+        if not self.is_standalone:
+            for widget in self.root.winfo_children():
+                widget.destroy()
+
+        #Create the left navigation sidebar
+        self.sidebar = tk.Frame(
+            self.root,
+            bg=style.COLOR_PRIMARY,
+            width=220
+        )
+        self.sidebar.pack(side="left", fill="y")
+
+        #Create the main content area on the right
+        self.main_area = tk.Frame(
+            self.root,
+            bg=style.COLOR_BG_MAIN
+        )
+        self.main_area.pack(side="right", expand=True, fill="both")
+
+        #Build sidebar buttons
+        self.create_sidebar()
+
+        #Show the default dashboard view
+        self.show_dashboard()
+
+        #Start Tkinter main loop if this is a standalone execution
+        if self.is_standalone:
+            self.root.mainloop()
+
+    #Create sidebar navigation controls
+    def create_sidebar(self):
+        #Application title in sidebar
+        title = tk.Label(
+            self.sidebar,
+            text=style.APP_TITLE,
+            bg=style.COLOR_PRIMARY,
+            fg=style.COLOR_LIGHT,
+            font=(style.FONT_FAMILY, 16, "bold"),
+            wraplength=180,
+            justify="center"
+        )
+        title.pack(pady=25)
+
+        #Display currently logged-in user
+        active_user = auth.get_user()
+        username = active_user.username if active_user is not None else "admin"
+
+        user_label = tk.Label(
+            self.sidebar,
+            text=f"User: {username}",
+            bg=style.COLOR_PRIMARY,
+            fg=style.COLOR_LIGHT,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
+        )
+        user_label.pack(pady=10)
+
+        #Sidebar Buttons
+        tk.Button(
+            self.sidebar,
+            text="Dashboard",
+            width=20,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON),
+            command=self.show_dashboard
+        ).pack(pady=8)
+
+        tk.Button(
+            self.sidebar,
+            text="Transactions",
+            width=20,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON),
+            command=self.show_transactions
+        ).pack(pady=8)
+
+        tk.Button(
+            self.sidebar,
+            text="Categories",
+            width=20,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON),
+            command=self.open_categories
+        ).pack(pady=8)
+
+        tk.Button(
+            self.sidebar,
+            text="Refresh",
+            width=20,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON),
+            command=self.show_dashboard
+        ).pack(pady=8)
+
+        tk.Button(
+            self.sidebar,
+            text="Exit",
+            width=20,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON),
+            command=self.exit_app
+        ).pack(pady=30)
+
+    #Helper method to clear main content area
+    def clear_main_area(self):
+        for widget in self.main_area.winfo_children():
+            widget.destroy()
+
+    #Calculate financial summary: total income, total expenses, and balance
+    def get_financial_summary(self):
+        con = database.connect()
+        if con is None:
+            return 0, 0, 0
+
+        try:
+            cur = con.cursor()
+            active_user = auth.get_user()
+            user_id = active_user.id if active_user is not None else 1
+
+            #Fetch sum of all income transactions for this user
+            cur.execute("""
+                SELECT SUM(transactions.amount)
+                FROM transactions
+                INNER JOIN categories
+                ON transactions.category_id = categories.id
+                WHERE categories.type = 'income'
+                AND transactions.created_by = ?
+            """, (user_id,))
+            total_income = cur.fetchone()[0]
+
+            #fetch sum of all expense transactions for this user
+            cur.execute("""
+                SELECT SUM(transactions.amount)
+                FROM transactions
+                INNER JOIN categories
+                ON transactions.category_id = categories.id
+                WHERE categories.type = 'expense'
+                AND transactions.created_by = ?
+            """, (user_id,))
+            total_expenses = cur.fetchone()[0]
+
+            if total_income is None:
+                total_income = 0.0
+
+            if total_expenses is None:
+                total_expenses = 0.0
+
+            balance = total_income - total_expenses
+            return total_income, total_expenses, balance
+
+        except Exception as e:
+            logging.exception("An error occurred while calculating the financial summary.")
+            return 0.0, 0.0, 0.0
+        finally:
+            con.close()
+
+    #Display dashboard stats and cards
+    def show_dashboard(self):
+        #Clear main panel first
+        self.clear_main_area()
+
+        #Retrieve financial data
+        total_income, total_expenses, balance = self.get_financial_summary()
+
+        #Title Label
+        tk.Label(
+            self.main_area,
+            text="Dashboard",
+            bg=style.COLOR_BG_MAIN,
+            fg=style.COLOR_TEXT_MAIN,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_TITLE, "bold")
+        ).pack(pady=30)
+
+        #Cards Frame
+        cards_frame = tk.Frame(
+            self.main_area,
+            bg=style.COLOR_BG_MAIN
+        )
+        cards_frame.pack(pady=20)
+
+        #Total Income Card
+        self.create_card(
+            cards_frame,
+            "Total Income",
+            f"{total_income:.2f} €",
+            style.COLOR_SUCCESS,
+            0,
+            0
+        )
+
+        #Total Expenses Card
+        self.create_card(
+            cards_frame,
+            "Total Expenses",
+            f"{total_expenses:.2f} €",
+            style.COLOR_DANGER,
+            0,
+            1
+        )
+
+        #Current Balance Card
+        self.create_card(
+            cards_frame,
+            "Current Balance",
+            f"{balance:.2f} €",
+            style.COLOR_PRIMARY,
+            0,
+            2
+        )
+
+        #Informational subtext
+        tk.Label(
+            self.main_area,
+            text="Use the menu on the left to manage transactions and categories.",
+            bg=style.COLOR_BG_MAIN,
+            fg=style.COLOR_TEXT_MUTED,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
+        ).pack(pady=30)
+
+    #Dynamic card generation
+    def create_card(self, parent, title, value, value_color, row, column):
+        card = tk.Frame(
+            parent,
+            bg=style.COLOR_BG_CARD,
+            width=220,
+            height=130,
+            relief="ridge",
+            borderwidth=1
+        )
+        card.grid(row=row, column=column, padx=15, pady=10)
+        card.pack_propagate(False)
+
+        #Card Title
+        tk.Label(
+            card,
+            text=title,
+            bg=style.COLOR_BG_CARD,
+            fg=style.COLOR_TEXT_MUTED,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT, "bold")
+        ).pack(pady=18)
+
+        #Card Value
+        tk.Label(
+            card,
+            text=value,
+            bg=style.COLOR_BG_CARD,
+            fg=value_color,
+            font=(style.FONT_FAMILY, 20, "bold")
+        ).pack(pady=10)
+
+    #Navigate to Transactions View
+    def show_transactions(self):
+        self.clear_main_area()
+        TransactionsFrame(self.main_area)
+
+    #Open Categories Window
+    def open_categories(self):
+        CategoriesWindow(self.root)
+
+    #Safely close application with user prompt
+    def exit_app(self):
+        answer = messagebox.askyesno(
+            "Exit",
+            "Do you want to exit the application?"
+        )
+        if answer:
+            self.root.destroy()
+
+
+#-------------------------------------------------------------------------
+#Legacy routing compatibility for other modules
+def build_dashboard_gui(root):
+    Dashboard(root)
+
+
+#-------------------------------------------------------------------------
+#Main function of the program.
 def main():
-    setup_logging() #start logging
+    setup_logging()  #Start error logger
     try:
-        #make the main window GUI (root)
+        #Create and initialize main application root window
         root = tk.Tk()
         root.title(style.APP_TITLE)
         root.geometry(style.APP_DIMENSIONS)
-        
-        con = database.connect() #connect to database
+        root.resizable(False, False)
+
+        con = database.connect()  #Connect to SQLite database
         if con:
-            loged_in = auth.check_login() #check if user is loged in
-            if (loged_in):
-                #dashboardGUI(root)
-                print("dashboard")
+            logged_in = auth.check_login()  #Check user session status
+            if logged_in:
+                Dashboard(root)
             else:
                 login.build_login_gui(root)
-                #login.start_login()
-                #get current user (it will be only id when we have data from db
-                #active_user = auth.get_user()
-                #if active_user:
-                    #print(f"Welcome {active_user.username} with id:{active_user.id}!!")
-            
         else:
-            print("There was a problem while creating the tables")
-        #run the App
-        root.mainloop()
-            
-    #if program crashes for other reason write to logfile
-    except Exception as e:
-        logging.exception("Critical Error: The application crashed")
-#-------------------------------------------------------------------------
+            print("There was a problem while connecting to the database.")
 
-#start main if we are only at dashboard (run this if the file was executed directly)
+        #Run primary Tkinter GUI loop
+        root.mainloop()
+
+    except Exception as e:
+        logging.exception("Critical Error: The application crashed.")
+
+
 if __name__ == "__main__":
     main()
-    
-#-------------------------------------------------------------------------
-#GUI
-def build_dashboard_gui(root):
-    #Clear the login screen widgets
-    for widget in root.winfo_children():
-        widget.destroy()
-
-    #Get the logged-in user data from auth
-    active_user = auth.get_user()
-
-    #Create the Dashboard Label
-    dashboard_text = f"Welcome {active_user.username} (ID: {active_user.id})"
-    
-    lbl_welcome = tk.Label(
-        root, 
-        text=dashboard_text, 
-        font=(style.FONT_FAMILY, style.FONT_SIZE_TITLE, "bold"),
-        bg=style.COLOR_BG_MAIN,
-        fg=style.COLOR_TEXT_MAIN
-    )
-    lbl_welcome.pack(pady=100)
-    

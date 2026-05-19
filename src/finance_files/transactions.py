@@ -6,8 +6,140 @@ from datetime import date
 # Import project files
 from database import database
 from login_system import auth
+from finance_files import categories
 
 import config_and_styles as style
+
+
+# ---------------------------------------------------------------------
+# ADD TRANSACTION
+# ---------------------------------------------------------------------
+def add_transaction(
+    user_id,
+    transaction_type,
+    category_name,
+    amount,
+    transaction_date,
+    is_monthly
+):
+    con = database.connect()
+
+    if con is None:
+        return
+
+    try:
+        cur = con.cursor()
+
+        # Find category id
+        cur.execute("""
+            SELECT id
+            FROM categories
+            WHERE name = ?
+            AND type = ?
+        """, (
+            category_name,
+            transaction_type.lower()
+        ))
+
+        category = cur.fetchone()
+
+        if category is None:
+            return
+
+        category_id = category[0]
+
+        # Insert transaction into database
+        cur.execute("""
+            INSERT INTO transactions
+            (
+                category_id,
+                amount,
+                date,
+                is_monthly,
+                created_by
+            )
+            VALUES (?, ?, ?, ?, ?)
+        """, (
+            category_id,
+            amount,
+            transaction_date,
+            is_monthly,
+            user_id
+        ))
+
+        con.commit()
+
+    except Exception as error:
+        print("Error adding transaction:", error)
+
+    finally:
+        con.close()
+
+
+# ---------------------------------------------------------------------
+# GET TRANSACTIONS
+# ---------------------------------------------------------------------
+def get_transactions(user_id):
+    con = database.connect()
+
+    if con is None:
+        return []
+
+    try:
+        cur = con.cursor()
+
+        cur.execute("""
+            SELECT
+                transactions.id,
+                transactions.date,
+                categories.type,
+                categories.name,
+                transactions.amount,
+                transactions.is_monthly
+            FROM transactions
+
+            INNER JOIN categories
+            ON transactions.category_id = categories.id
+
+            WHERE transactions.created_by = ?
+
+            ORDER BY transactions.date DESC
+        """, (user_id,))
+
+        return cur.fetchall()
+
+    except Exception as error:
+        print("Error loading transactions:", error)
+        return []
+
+    finally:
+        con.close()
+
+
+# ---------------------------------------------------------------------
+# DELETE TRANSACTION
+# ---------------------------------------------------------------------
+def delete_transaction(transaction_id):
+    con = database.connect()
+
+    if con is None:
+        return
+
+    try:
+        cur = con.cursor()
+
+        cur.execute("""
+            DELETE FROM transactions
+            WHERE id = ?
+        """, (transaction_id,))
+
+        con.commit()
+
+    except Exception as error:
+        print("Error deleting transaction:", error)
+
+    finally:
+        con.close()
 
 
 class TransactionsFrame:
@@ -211,11 +343,11 @@ class TransactionsFrame:
             # Get selected transaction type
             transaction_type = self.type_var.get()
 
-            # Get categories from database
-            categories = database.get_categories(user_id, transaction_type)
+            # Get categories
+            category_list = categories.get_categories(user_id, transaction_type)
 
             # Extract category names
-            category_names = [category[1] for category in categories]
+            category_names = [category[1] for category in category_list]
 
             # Add names to dropdown
             self.category_combo["values"] = category_names
@@ -259,8 +391,8 @@ class TransactionsFrame:
                 messagebox.showwarning("Validation Error", "Amount must be greater than zero.")
                 return
 
-            # Save transaction to database
-            database.add_transaction(
+            # Save transaction
+            add_transaction(
                 user_id,
                 transaction_type,
                 category,
@@ -294,8 +426,8 @@ class TransactionsFrame:
             # Get user id
             user_id = self.get_current_user_id()
 
-            # Get transactions from database
-            transactions = database.get_transactions(user_id)
+            # Get transactions
+            transactions = get_transactions(user_id)
 
             # Insert transactions into table
             for transaction in transactions:
@@ -327,8 +459,8 @@ class TransactionsFrame:
             item_values = self.tree.item(selected_item)["values"]
             transaction_id = item_values[0]
 
-            # Delete from database
-            database.delete_transaction(transaction_id)
+            # Delete transaction
+            delete_transaction(transaction_id)
 
             # Success message
             messagebox.showinfo("Success", "Transaction deleted successfully.")

@@ -14,6 +14,87 @@ from login_system import auth
 import config_and_styles as style
 
 
+# ---------------------------------------------------------------------
+# GET CATEGORIES
+# ---------------------------------------------------------------------
+def get_categories(user_id, category_type):
+    con = database.connect()
+
+    if con is None:
+        return []
+
+    try:
+        cur = con.cursor()
+
+        cur.execute("""
+            SELECT id, name, type
+            FROM categories
+            WHERE type = ?
+            ORDER BY name
+        """, (category_type.lower(),))
+
+        return cur.fetchall()
+
+    except Exception as error:
+        print("Error loading categories:", error)
+        return []
+
+    finally:
+        con.close()
+
+
+# ---------------------------------------------------------------------
+# ADD CATEGORY
+# ---------------------------------------------------------------------
+def add_category(user_id, category_name, category_type):
+    con = database.connect()
+
+    if con is None:
+        return
+
+    try:
+        cur = con.cursor()
+
+        cur.execute("""
+            INSERT INTO categories (name, type)
+            VALUES (?, ?)
+        """, (category_name, category_type.lower()))
+
+        con.commit()
+
+    except Exception as error:
+        print("Error adding category:", error)
+
+    finally:
+        con.close()
+
+
+# ---------------------------------------------------------------------
+# DELETE CATEGORY
+# ---------------------------------------------------------------------
+def delete_category(category_id):
+    con = database.connect()
+
+    if con is None:
+        return
+
+    try:
+        cur = con.cursor()
+
+        cur.execute("""
+            DELETE FROM categories
+            WHERE id = ?
+        """, (category_id,))
+
+        con.commit()
+
+    except Exception as error:
+        print("Error deleting category:", error)
+
+    finally:
+        con.close()
+
+
 class CategoriesWindow:
 
     def __init__(self, parent):
@@ -176,8 +257,8 @@ class CategoriesWindow:
             # Get selected category type
             category_type = self.type_var.get()
 
-            # Retrieve categories from database
-            categories = database.get_categories(user_id, category_type)
+            # Retrieve categories
+            categories = get_categories(user_id, category_type)
 
             # Insert categories into table
             for category in categories:
@@ -208,8 +289,8 @@ class CategoriesWindow:
                 )
                 return
 
-            # Add category to database
-            database.add_category(user_id, category_name, category_type)
+            # Add category
+            add_category(user_id, category_name, category_type)
 
             # Show success message
             messagebox.showinfo(
@@ -258,8 +339,8 @@ class CategoriesWindow:
             # Get category id from selected row
             category_id = item_values[0]
 
-            # Delete category from database
-            database.delete_category(category_id)
+            # Delete category
+            delete_category(category_id)
 
             # Show success message
             messagebox.showinfo(

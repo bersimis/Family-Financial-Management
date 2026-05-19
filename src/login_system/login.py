@@ -155,3 +155,18 @@ def build_login_gui(root):
         fg=style.COLOR_ERROR
     )
     error_label.pack(pady=5)
+
+    #---Register Link---
+    from login_system import register
+    register_link = tk.Label(
+        root,
+        text="Don't have an account? Register here",
+        font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT, "underline"),
+        bg=style.COLOR_BG_MAIN,
+        fg=style.COLOR_PRIMARY,
+        cursor="hand2"
+    )
+    register_link.pack(pady=10)
+    register_link.bind("<Button-1>", lambda event: register.build_register_gui(root))
+    register_link.bind("<Enter>", lambda event: register_link.config(fg=style.COLOR_LINK_HOVER))
+    register_link.bind("<Leave>", lambda event: register_link.config(fg=style.COLOR_PRIMARY))

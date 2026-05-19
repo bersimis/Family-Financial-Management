@@ -19,6 +19,7 @@ COLOR_TEXT_MUTED = "#6c757d"  #Bootstrap 'Muted' for secondary info
 
 #Action Colors
 COLOR_PRIMARY = "#0d6efd"     #Bootstrap 'Blue'
+COLOR_LINK_HOVER = "#0a58ca"  #Bootstrap 'Dark Blue' on hover
 COLOR_SUCCESS = "#198754"     #Bootstrap 'Green'
 COLOR_DANGER  = "#dc3545"     #Bootstrap 'Red'
 COLOR_LIGHT   = "#f8f9fa"     #White-ish for text on dark buttons
