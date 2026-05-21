@@ -14,6 +14,7 @@ import config_and_styles as style
 # ---------------------------------------------------------------------
 # ADD TRANSACTION
 # ---------------------------------------------------------------------
+
 def add_transaction(
     user_id,
     transaction_type,
@@ -141,7 +142,8 @@ def delete_transaction(transaction_id):
     finally:
         con.close()
 
-
+#Object-oriented programming, definition of classes, inheritance
+        
 class TransactionsFrame:
     def __init__(self, parent):
         # Store parent frame
@@ -166,9 +168,11 @@ class TransactionsFrame:
 
         # Fallback id for testing without login
         return 1
+    
+    #Μethod
 
     def create_form(self):
-        # Create title
+        # Create title 
         title = tk.Label(
             self.frame,
             text="Add Income / Expense",
@@ -225,6 +229,17 @@ class TransactionsFrame:
             font=(style.FONT_FAMILY, style.FONT_SIZE_INPUT)
         )
         self.category_combo.grid(row=0, column=3, padx=5, pady=5)
+        #Create + button
+        tk.Button(
+            form,
+            text="+",
+            width=3,
+            bg=style.COLOR_PRIMARY,
+            fg=style.COLOR_LIGHT,
+            font=(style.FONT_FAMILY, 10,"bold"),
+            command=self.open_categories_window
+            ).grid(row=0, column=4, padx=5)
+       
 
         # Amount label
         tk.Label(
@@ -303,7 +318,8 @@ class TransactionsFrame:
 
         # Load categories into dropdown
         self.load_categories()
-
+        
+        
     def create_table(self):
         # Define table columns
         columns = ("id", "date", "type", "category", "amount", "monthly")
@@ -344,7 +360,7 @@ class TransactionsFrame:
             transaction_type = self.type_var.get()
 
             # Get categories
-            category_list = categories.get_categories(user_id, transaction_type)
+            category_list = database.get_categories(user_id, transaction_type)
 
             # Extract category names
             category_names = [category[1] for category in category_list]
@@ -435,6 +451,9 @@ class TransactionsFrame:
 
         except Exception as error:
             messagebox.showerror("Error", f"Could not load transactions:\n{error}")
+    #Parent definition
+    def open_categories_window(self):
+        categories.CategoriesWindow(self.frame)
 
     def delete_selected_transaction(self):
         # Get selected row
