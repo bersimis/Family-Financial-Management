@@ -218,7 +218,7 @@ class TransactionsFrame:
             fg=style.COLOR_TEXT_MAIN,
             font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
         ).grid(row=0, column=2, padx=5, pady=5)
-
+        
         # Category dropdown
         self.category_var = tk.StringVar()
         self.category_combo = ttk.Combobox(
@@ -229,16 +229,17 @@ class TransactionsFrame:
             font=(style.FONT_FAMILY, style.FONT_SIZE_INPUT)
         )
         self.category_combo.grid(row=0, column=3, padx=5, pady=5)
+
         #Create + button
         tk.Button(
             form,
-            text="+",
-            width=3,
+            text="Add category",
+            width=12,
             bg=style.COLOR_PRIMARY,
             fg=style.COLOR_LIGHT,
             font=(style.FONT_FAMILY, 10,"bold"),
             command=self.open_categories_window
-            ).grid(row=0, column=4, padx=5)
+            ).grid(row=1, column=3, padx=5, pady=5)
        
 
         # Amount label
@@ -248,7 +249,7 @@ class TransactionsFrame:
             bg=style.COLOR_BG_MAIN,
             fg=style.COLOR_TEXT_MAIN,
             font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
-        ).grid(row=1, column=0, padx=5, pady=5)
+        ).grid(row=2, column=0, padx=5, pady=5)
 
         # Amount input
         self.amount_entry = tk.Entry(
@@ -258,7 +259,7 @@ class TransactionsFrame:
             bg=style.COLOR_BG_CARD,
             fg=style.COLOR_TEXT_MAIN
         )
-        self.amount_entry.grid(row=1, column=1, padx=5, pady=5)
+        self.amount_entry.grid(row=2, column=1, padx=5, pady=5)
 
         # Date label
         tk.Label(
@@ -267,7 +268,7 @@ class TransactionsFrame:
             bg=style.COLOR_BG_MAIN,
             fg=style.COLOR_TEXT_MAIN,
             font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
-        ).grid(row=1, column=2, padx=5, pady=5)
+        ).grid(row=2, column=2, padx=5, pady=5)
 
         # Date input
         self.date_entry = tk.Entry(
@@ -278,7 +279,7 @@ class TransactionsFrame:
             fg=style.COLOR_TEXT_MAIN
         )
         self.date_entry.insert(0, date.today().strftime("%Y-%m-%d"))
-        self.date_entry.grid(row=1, column=3, padx=5, pady=5)
+        self.date_entry.grid(row=2, column=3, padx=5, pady=5)
 
         # Monthly checkbox variable
         self.monthly_var = tk.IntVar(value=0)
@@ -292,7 +293,7 @@ class TransactionsFrame:
             fg=style.COLOR_TEXT_MAIN,
             font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
         )
-        self.monthly_check.grid(row=2, column=1, padx=5, pady=5)
+        self.monthly_check.grid(row=3, column=1, padx=5, pady=5)
 
         # Save button
         tk.Button(
@@ -303,7 +304,7 @@ class TransactionsFrame:
             fg=style.COLOR_LIGHT,
             font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON, "bold"),
             width=20
-        ).grid(row=3, column=1, pady=15)
+        ).grid(row=4, column=1, pady=15)
 
         # Delete button
         tk.Button(
@@ -314,7 +315,7 @@ class TransactionsFrame:
             fg=style.COLOR_LIGHT,
             font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON, "bold"),
             width=20
-        ).grid(row=3, column=2, pady=15)
+        ).grid(row=4, column=2, pady=15)
 
         # Load categories into dropdown
         self.load_categories()
@@ -360,7 +361,7 @@ class TransactionsFrame:
             transaction_type = self.type_var.get()
 
             # Get categories
-            category_list = database.get_categories(user_id, transaction_type)
+            category_list = categories.get_categories(user_id, transaction_type)
 
             # Extract category names
             category_names = [category[1] for category in category_list]

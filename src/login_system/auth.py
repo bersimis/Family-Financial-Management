@@ -5,7 +5,7 @@ import os
 import logging
 #-------------------------------------------------------------------------
 
-#Create the classfor user
+#Create the class for user
 class User:
     #create the method
     def __init__(self,id,username,role_id):
@@ -40,3 +40,7 @@ def get_user():
 
 #-------------------------------------------------------------------------
 
+#We will destroy/logout user and redirect him to login session
+def destroy_user():
+    current_user = None
+    

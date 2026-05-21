@@ -96,7 +96,7 @@ class Dashboard:
 
         #Display currently logged-in user
         active_user = auth.get_user()
-        username = active_user.username if active_user is not None else "admin"
+        username = active_user.username
 
         user_label = tk.Label(
             self.sidebar,
@@ -126,18 +126,18 @@ class Dashboard:
 
         tk.Button(
             self.sidebar,
-            text="Categories",
+            text="Profile",
             width=20,
             font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON),
-            command=self.open_categories
+            command=self.show_dashboard
         ).pack(pady=8)
 
         tk.Button(
             self.sidebar,
-            text="Refresh",
+            text="Logout",
             width=20,
             font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON),
-            command=self.show_dashboard
+            command=self.logout
         ).pack(pady=8)
 
         tk.Button(
@@ -313,12 +313,16 @@ class Dashboard:
         if answer:
             self.root.destroy()
 
+    #destroy/logout user and redirect him to login page        
+    def logout(self):
+        auth.destroy_user()
+        login.build_login_gui(self.root)
+
 
 #-------------------------------------------------------------------------
 #Legacy routing compatibility for other modules
 def build_dashboard_gui(root):
     Dashboard(root)
-
 
 #-------------------------------------------------------------------------
 #Main function of the program.
