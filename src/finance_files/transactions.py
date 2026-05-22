@@ -80,7 +80,7 @@ def add_transaction(
 # ---------------------------------------------------------------------
 # GET TRANSACTIONS
 # ---------------------------------------------------------------------
-def get_transactions(user_id):
+def get_transactions(user_id, role_id=None):
     con = database.connect()
 
     if con is None:
@@ -89,23 +89,45 @@ def get_transactions(user_id):
     try:
         cur = con.cursor()
 
-        cur.execute("""
-            SELECT
-                transactions.id,
-                transactions.date,
-                categories.type,
-                categories.name,
-                transactions.amount,
-                transactions.is_monthly
-            FROM transactions
+        # Role rules:
+        # role_id = 1: admin / parent -> can see all transactions.
+        # role_id = 2: family member -> can see only their own transactions.
+        # role_id = 3: child -> can see only their own transactions.
+        # If role_id is missing, we use the safe default: show only the current user's transactions.
+        if role_id == 1:
+            cur.execute("""
+                SELECT
+                    transactions.id,
+                    transactions.date,
+                    categories.type,
+                    categories.name,
+                    transactions.amount,
+                    transactions.is_monthly
+                FROM transactions
 
-            INNER JOIN categories
-            ON transactions.category_id = categories.id
+                INNER JOIN categories
+                ON transactions.category_id = categories.id
 
-            WHERE transactions.created_by = ?
+                ORDER BY transactions.date DESC
+            """)
+        else:
+            cur.execute("""
+                SELECT
+                    transactions.id,
+                    transactions.date,
+                    categories.type,
+                    categories.name,
+                    transactions.amount,
+                    transactions.is_monthly
+                FROM transactions
 
-            ORDER BY transactions.date DESC
-        """, (user_id,))
+                INNER JOIN categories
+                ON transactions.category_id = categories.id
+
+                WHERE transactions.created_by = ?
+
+                ORDER BY transactions.date DESC
+            """, (user_id,))
 
         return cur.fetchall()
 
@@ -159,17 +181,29 @@ class TransactionsFrame:
         self.load_transactions()
 
     def get_current_user_id(self):
-        # Get current logged-in user from auth.py
+        # Get the currently logged-in user from auth.py.
         current_user = auth.get_user()
 
-        # If user exists, return user id
+        # If a user is logged in, return the database id of this user.
         if current_user is not None:
             return current_user.id
 
-        # Fallback id for testing without login
+        # Fallback id for testing without login.
         return 1
+
+    def get_current_user_role_id(self):
+        # Get the currently logged-in user from auth.py.
+        current_user = auth.get_user()
+
+        # If a user is logged in, return their role_id.
+        # Expected roles: 1 = admin/parent, 2 = family member, 3 = child.
+        if current_user is not None:
+            return current_user.role_id
+
+        # Safe fallback for testing: non-admin users can only see their own transactions.
+        return None
     
-    #Μethod
+    # Method
 
     def create_form(self):
         # Create title 
@@ -440,11 +474,13 @@ class TransactionsFrame:
             for row in self.tree.get_children():
                 self.tree.delete(row)
 
-            # Get user id
+            # Get the current user id and role id.
             user_id = self.get_current_user_id()
+            role_id = self.get_current_user_role_id()
 
-            # Get transactions
-            transactions = get_transactions(user_id)
+            # Load transactions according to the user's role.
+            # Admin/parent sees all transactions; family members and children see only their own.
+            transactions = get_transactions(user_id, role_id)
 
             # Insert transactions into table
             for transaction in transactions:
