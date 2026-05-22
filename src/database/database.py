@@ -24,7 +24,7 @@ def connect():
         cur = con.cursor()
         #Activate Foreign Keys
         cur.execute("PRAGMA foreign_keys = ON;")
-        print("Database connection success")
+        
         
         if not db_exists:
             create_db(con) # create tables

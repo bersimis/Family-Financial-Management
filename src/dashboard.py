@@ -10,11 +10,13 @@ from database import database
 #Import auth module to manage logged-in user session
 from login_system import auth
 from login_system import login
-#Import GUI frames and windows
+#Import GUIs
 from finance_files.transactions import TransactionsFrame
 from finance_files.categories import CategoriesWindow
+from admin import admin_panel
 #Import global configuration and styles
 import config_and_styles as style
+
 
 
 #-------------------------------------------------------------------------
@@ -35,25 +37,15 @@ def setup_logging():
 #Main class responsible for the main window and top-level UI shell
 class Dashboard:
 
-    def __init__(self, root=None):
-        #If root is not provided, create a new Tkinter window (standalone mode)
-        if root is None:
-            self.root = tk.Tk()
-            self.root.title(style.APP_TITLE)
-            self.root.geometry(style.APP_DIMENSIONS)
-            self.root.resizable(False, False)
-            self.is_standalone = True
-        else:
-            self.root = root
-            self.is_standalone = False
+    def __init__(self, root):
+        self.root = root
 
         #Apply global background color to root window
         self.root.configure(bg=style.COLOR_BG_MAIN)
 
-        #Clear existing widgets from root if not in standalone mode (e.g. from login screen).
-        if not self.is_standalone:
-            for widget in self.root.winfo_children():
-                widget.destroy()
+        #Clear existing widgets from root (e.g. from login screen).
+        for widget in self.root.winfo_children():
+            widget.destroy()
 
         #Create the left navigation sidebar
         self.sidebar = tk.Frame(
@@ -75,10 +67,6 @@ class Dashboard:
 
         #Show the default dashboard view
         self.show_dashboard()
-
-        #Start Tkinter main loop if this is a standalone execution
-        if self.is_standalone:
-            self.root.mainloop()
 
     #Create sidebar navigation controls
     def create_sidebar(self):
@@ -124,14 +112,25 @@ class Dashboard:
             command=self.show_transactions
         ).pack(pady=8)
 
+        
         tk.Button(
             self.sidebar,
             text="Profile",
             width=20,
             font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON),
             command=self.show_dashboard
-        ).pack(pady=8)
+        ).pack(pady=(8,50))
 
+
+        if active_user.role_id == 1:
+            tk.Button(
+                self.sidebar,
+                text="Admin Panel",
+                width=20,
+                font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON),
+                command=self.show_admin_panel
+            ).pack(pady=8)
+        
         tk.Button(
             self.sidebar,
             text="Logout",
@@ -139,14 +138,14 @@ class Dashboard:
             font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON),
             command=self.logout
         ).pack(pady=8)
-
+        
         tk.Button(
             self.sidebar,
             text="Exit",
             width=20,
             font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON),
             command=self.exit_app
-        ).pack(pady=30)
+        ).pack(pady=8)
 
     #Helper method to clear main content area
     def clear_main_area(self):
@@ -300,6 +299,12 @@ class Dashboard:
         self.clear_main_area()
         TransactionsFrame(self.main_area)
 
+    #Navigate to Admin Panel View
+    def show_admin_panel(self):
+        self.clear_main_area()
+        from admin.admin_panel import AdminPanelFrame
+        AdminPanelFrame(self.main_area)
+
     #Open Categories Window
     def open_categories(self):
         CategoriesWindow(self.root)
@@ -315,8 +320,13 @@ class Dashboard:
 
     #destroy/logout user and redirect him to login page        
     def logout(self):
-        auth.destroy_user()
-        login.build_login_gui(self.root)
+        answer = messagebox.askyesno(
+            "Logout",
+            "Do you want to Logout?"
+        )
+        if answer:
+            auth.destroy_user()
+            login.build_login_gui(self.root)
 
 
 #-------------------------------------------------------------------------
