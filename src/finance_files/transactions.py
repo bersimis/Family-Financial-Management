@@ -79,8 +79,10 @@ def add_transaction(
 
 # ---------------------------------------------------------------------
 # GET TRANSACTIONS
-# ---------------------------------------------------------------------
-def get_transactions(user_id, role_id=None):
+
+
+def get_transactions(user_id, role_name=None):
+
     con = database.connect()
 
     if con is None:
@@ -90,11 +92,12 @@ def get_transactions(user_id, role_id=None):
         cur = con.cursor()
 
         # Role rules:
-        # role_id = 1: admin / parent -> can see all transactions.
-        # role_id = 2: family member -> can see only their own transactions.
-        # role_id = 3: child -> can see only their own transactions.
-        # If role_id is missing, we use the safe default: show only the current user's transactions.
-        if role_id == 1:
+        # admin  -> can see all family transactions
+        # editor -> can see all family transactions
+        # viewer -> can see all family transactions
+        # If role_name is missing, show only the current user's transactions.
+
+        if role_name in ["admin", "editor", "viewer"]:
             cur.execute("""
                 SELECT
                     transactions.id,
@@ -104,10 +107,8 @@ def get_transactions(user_id, role_id=None):
                     transactions.amount,
                     transactions.is_monthly
                 FROM transactions
-
                 INNER JOIN categories
                 ON transactions.category_id = categories.id
-
                 ORDER BY transactions.date DESC
             """)
         else:
@@ -120,12 +121,9 @@ def get_transactions(user_id, role_id=None):
                     transactions.amount,
                     transactions.is_monthly
                 FROM transactions
-
                 INNER JOIN categories
                 ON transactions.category_id = categories.id
-
                 WHERE transactions.created_by = ?
-
                 ORDER BY transactions.date DESC
             """, (user_id,))
 
@@ -137,6 +135,7 @@ def get_transactions(user_id, role_id=None):
 
     finally:
         con.close()
+
 
 
 # ---------------------------------------------------------------------
@@ -468,26 +467,34 @@ class TransactionsFrame:
         except Exception as error:
             messagebox.showerror("Error", f"Could not save transaction:\n{error}")
 
+
     def load_transactions(self):
         try:
             # Clear table
             for row in self.tree.get_children():
                 self.tree.delete(row)
 
-            # Get the current user id and role id.
-            user_id = self.get_current_user_id()
-            role_id = self.get_current_user_role_id()
+          # Get current logged-in user
+            current_user = auth.get_user()
 
-            # Load transactions according to the user's role.
-            # Admin/parent sees all transactions; family members and children see only their own.
-            transactions = get_transactions(user_id, role_id)
+          # Load transactions depending on role
+            transactions = get_transactions(
+                current_user.id,
+                current_user.role_id
+            )
 
-            # Insert transactions into table
+         # Insert transactions into table
             for transaction in transactions:
                 self.tree.insert("", tk.END, values=transaction)
 
         except Exception as error:
-            messagebox.showerror("Error", f"Could not load transactions:\n{error}")
+            messagebox.showerror(
+                "Error",
+                f"Could not load transactions:\n{error}"
+            )
+
+
+  
     #Parent definition
     def open_categories_window(self):
         categories.CategoriesWindow(self.frame)
