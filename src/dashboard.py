@@ -147,7 +147,7 @@ class Dashboard:
             command=self.exit_app
         ).pack(pady=8)
 
-    #Helper method to clear main content area
+    #Helper method to clear main content area,if deleting files is required
     def clear_main_area(self):
         for widget in self.main_area.winfo_children():
             widget.destroy()
@@ -200,14 +200,58 @@ class Dashboard:
         finally:
             con.close()
 
-    #Display dashboard stats and cards
+
+    def get_family_financial_summary(self):
+        con = database.connect()
+
+        if con is None:
+            return 0.0, 0.0, 0.0
+
+        try:
+            cur = con.cursor()
+
+            cur.execute("""
+                SELECT SUM(transactions.amount)
+                FROM transactions
+                INNER JOIN categories
+                ON transactions.category_id = categories.id
+                WHERE categories.type = 'income'
+            """)
+            family_income = cur.fetchone()[0] or 0.0
+
+            cur.execute("""
+                SELECT SUM(transactions.amount)
+                FROM transactions
+                INNER JOIN categories
+                ON transactions.category_id = categories.id
+                WHERE categories.type = 'expense'
+                """)
+            family_expenses = cur.fetchone()[0] or 0.0
+
+            family_balance = family_income - family_expenses
+
+            return family_income, family_expenses, family_balance
+
+        except Exception as e:
+            logging.exception("An error occurred while calculating the family financial summary.")
+            return 0.0, 0.0, 0.0
+
+        finally:
+            con.close()
+    
+
+    #Display dashboard stats and cards, create class Dashboard
+            
     def show_dashboard(self):
         #Clear main panel first
         self.clear_main_area()
 
         #Retrieve financial data
         total_income, total_expenses, balance = self.get_financial_summary()
-
+        
+        #Add family financial data
+        family_income, family_expenses, family_balance = self.get_family_financial_summary()
+        
         #Title Label
         tk.Label(
             self.main_area,
@@ -219,10 +263,11 @@ class Dashboard:
 
         #Cards Frame
         cards_frame = tk.Frame(
-            self.main_area,
-            bg=style.COLOR_BG_MAIN
-        )
+             self.main_area,
+             bg=style.COLOR_BG_MAIN
+         )
         cards_frame.pack(pady=20)
+    
 
         #Total Income Card
         self.create_card(
@@ -254,14 +299,45 @@ class Dashboard:
             2
         )
 
+
+   #Family income-expenses, balance tabs
+    
+
+        self.create_card(
+            cards_frame,
+            "Family Income",
+            f"{family_income:.2f} €",
+            style.COLOR_SUCCESS,
+            1,
+            0
+            )
+
+        self.create_card(
+            cards_frame,
+            "Family Expenses",
+            f"{family_expenses:.2f} €",
+            style.COLOR_DANGER,
+            1,
+            1
+            )
+
+        self.create_card(
+            cards_frame,
+            "Family Balance",
+            f"{family_balance:.2f} €",
+            style.COLOR_PRIMARY,
+            1,
+            2
+            )
+
         #Informational subtext
         tk.Label(
-            self.main_area,
-            text="Use the menu on the left to manage transactions and categories.",
-            bg=style.COLOR_BG_MAIN,
-            fg=style.COLOR_TEXT_MUTED,
-            font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
-        ).pack(pady=30)
+              self.main_area,
+              text="Use the menu on the left to manage transactions and categories.",
+              bg=style.COLOR_BG_MAIN,
+              fg=style.COLOR_TEXT_MUTED,
+              font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
+          ).pack(pady=30)
 
     #Dynamic card generation
     def create_card(self, parent, title, value, value_color, row, column):

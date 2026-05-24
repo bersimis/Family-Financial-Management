@@ -298,3 +298,33 @@ Traceback (most recent call last):
     command=self.show_admin_panel
             ^^^^^^^^^^^^^^^^^^^^^
 AttributeError: 'Dashboard' object has no attribute 'show_admin_panel'
+2026-05-24 20:49:33,381 | ERROR | An error occurred during login. | login
+Traceback (most recent call last):
+  File "C:\Users\DAPHNE\Desktop\dafni.py\Domestic-Financial-Management\Domestic-Financial-Management\src\login_system\login.py", line 56, in start_login
+    dashboard.build_dashboard_gui(root) # on corect credentials go to dashboard GUI
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\DAPHNE\Desktop\dafni.py\Domestic-Financial-Management\Domestic-Financial-Management\src\dashboard.py", line 366, in build_dashboard_gui
+    Dashboard(root)
+    ~~~~~~~~~^^^^^^
+  File "C:\Users\DAPHNE\Desktop\dafni.py\Domestic-Financial-Management\Domestic-Financial-Management\src\dashboard.py", line 69, in __init__
+    self.show_dashboard()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DAPHNE\Desktop\dafni.py\Domestic-Financial-Management\Domestic-Financial-Management\src\dashboard.py", line 263, in show_dashboard
+    f"{family_income:.2f} €",
+       ^^^^^^^^^^^^^
+NameError: name 'family_income' is not defined
+2026-05-24 20:59:09,948 | ERROR | An error occurred during login. | login
+Traceback (most recent call last):
+  File "C:\Users\DAPHNE\Desktop\dafni.py\Domestic-Financial-Management\Domestic-Financial-Management\src\login_system\login.py", line 56, in start_login
+    dashboard.build_dashboard_gui(root) # on corect credentials go to dashboard GUI
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\DAPHNE\Desktop\dafni.py\Domestic-Financial-Management\Domestic-Financial-Management\src\dashboard.py", line 366, in build_dashboard_gui
+    Dashboard(root)
+    ~~~~~~~~~^^^^^^
+  File "C:\Users\DAPHNE\Desktop\dafni.py\Domestic-Financial-Management\Domestic-Financial-Management\src\dashboard.py", line 69, in __init__
+    self.show_dashboard()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DAPHNE\Desktop\dafni.py\Domestic-Financial-Management\Domestic-Financial-Management\src\dashboard.py", line 263, in show_dashboard
+    f"{family_income:.2f} €",
+       ^^^^^^^^^^^^^
+NameError: name 'family_income' is not defined
