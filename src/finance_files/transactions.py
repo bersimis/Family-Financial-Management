@@ -12,7 +12,7 @@ import config_and_styles as style
 
 
 # ---------------------------------------------------------------------
-# ADD TRANSACTION
+# ADD TRANSACTION FUNCTIONS
 # ---------------------------------------------------------------------
 
 def add_transaction(
@@ -31,7 +31,7 @@ def add_transaction(
     try:
         cur = con.cursor()
 
-        # Find category id
+        # Define category id
         cur.execute("""
             SELECT id
             FROM categories
@@ -78,10 +78,10 @@ def add_transaction(
 
 
 # ---------------------------------------------------------------------
-# GET TRANSACTIONS
+# IINSERT GET TRANSACTIONS FUNCTIONS
 
 
-def get_transactions(user_id, role_name=None):
+def get_transactions():
 
     con = database.connect()
 
@@ -90,43 +90,27 @@ def get_transactions(user_id, role_name=None):
 
     try:
         cur = con.cursor()
+       
+        cur.execute("""
+             SELECT
+                transactions.id,
+                transactions.date,
+                categories.type,
+                categories.name,
+                transactions.amount,
+                transactions.is_monthly,
+                COALESCE(users.username, 'Unknown') AS username
+            FROM transactions
 
-        # Role rules:
-        # admin  -> can see all family transactions
-        # editor -> can see all family transactions
-        # viewer -> can see all family transactions
-        # If role_name is missing, show only the current user's transactions.
+            INNER JOIN categories
+            ON transactions.category_id = categories.id
 
-        if role_name in ["admin", "editor", "viewer"]:
-            cur.execute("""
-                SELECT
-                    transactions.id,
-                    transactions.date,
-                    categories.type,
-                    categories.name,
-                    transactions.amount,
-                    transactions.is_monthly
-                FROM transactions
-                INNER JOIN categories
-                ON transactions.category_id = categories.id
-                ORDER BY transactions.date DESC
-            """)
-        else:
-            cur.execute("""
-                SELECT
-                    transactions.id,
-                    transactions.date,
-                    categories.type,
-                    categories.name,
-                    transactions.amount,
-                    transactions.is_monthly
-                FROM transactions
-                INNER JOIN categories
-                ON transactions.category_id = categories.id
-                WHERE transactions.created_by = ?
-                ORDER BY transactions.date DESC
-            """, (user_id,))
-
+            LEFT JOIN users
+            ON transactions.created_by = users.id
+                
+            ORDER BY transactions.date DESC
+        """)
+        
         return cur.fetchall()
 
     except Exception as error:
@@ -139,7 +123,7 @@ def get_transactions(user_id, role_name=None):
 
 
 # ---------------------------------------------------------------------
-# DELETE TRANSACTION
+# DELETE TRANSACTIONS FUNCTIONS
 # ---------------------------------------------------------------------
 def delete_transaction(transaction_id):
     con = database.connect()
@@ -195,7 +179,7 @@ class TransactionsFrame:
         current_user = auth.get_user()
 
         # If a user is logged in, return their role_id.
-        # Expected roles: 1 = admin/parent, 2 = family member, 3 = child.
+        # Expected roles: 1 = admin/parent, 2 = editor, 3 = viewer.
         if current_user is not None:
             return current_user.role_id
 
@@ -356,7 +340,7 @@ class TransactionsFrame:
         
     def create_table(self):
         # Define table columns
-        columns = ("id", "date", "type", "category", "amount", "monthly")
+        columns = ("id", "date", "type", "category", "amount", "monthly", "user")
 
         # Create table
         self.tree = ttk.Treeview(
@@ -373,6 +357,7 @@ class TransactionsFrame:
         self.tree.heading("category", text="Category")
         self.tree.heading("amount", text="Amount")
         self.tree.heading("monthly", text="Monthly")
+        self.tree.heading("user", text="User")
 
         # Column sizes
         self.tree.column("id", width=50)
@@ -381,6 +366,7 @@ class TransactionsFrame:
         self.tree.column("category", width=160)
         self.tree.column("amount", width=120)
         self.tree.column("monthly", width=100)
+        self.tree.column("user", width=140)
 
         # Place table
         self.tree.pack(expand=True, fill="both", pady=10)
@@ -478,13 +464,12 @@ class TransactionsFrame:
             current_user = auth.get_user()
 
           # Load transactions depending on role
-            transactions = get_transactions(
-                current_user.id,
-                current_user.role_id
-            )
+            transactions = get_transactions()
+               
 
          # Insert transactions into table
             for transaction in transactions:
+                print(transaction)
                 self.tree.insert("", tk.END, values=transaction)
 
         except Exception as error:
