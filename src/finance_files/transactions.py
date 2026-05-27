@@ -312,6 +312,31 @@ class TransactionsFrame:
         )
         self.monthly_check.grid(row=3, column=1, padx=5, pady=5)
 
+        #Insert Auto transaction day Label]
+        tk.Label(
+            form,
+            text="Auto Transaction Day:",
+            bg=style.COLOR_BG_MAIN,
+            fg=style.COLOR_TEXT_MAIN,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
+            ).grid(row=3, column=2, padx=5, pady=5)
+
+        #Input of auto transaction day
+        self.auto_transaction_day_entry=tk.Entry(
+            form,
+            width=21,
+            font=style.COLOR_BG_CARD,
+            fg=style.COLOR_TEXT_MAIN
+        )
+
+        self.auto_transaction_day_entry.grid(
+            row=3,
+            column=3,
+            padx=5,
+            pady=5
+        )
+
+
         # Save button
         tk.Button(
             form,
