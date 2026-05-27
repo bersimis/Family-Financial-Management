@@ -7,14 +7,42 @@ from datetime import date
 from database import database
 from login_system import auth
 from finance_files import categories
-
 import config_and_styles as style
 
 
 # ---------------------------------------------------------------------
-# ADD TRANSACTION FUNCTIONS
+# FILTER HELPERS
 # ---------------------------------------------------------------------
+def get_all_categories():
+    con = database.connect()
+    if con is None:
+        return []
+    try:
+        cur = con.cursor()
+        cur.execute("SELECT DISTINCT name FROM categories ORDER BY name ASC")
+        return [row[0] for row in cur.fetchall()]
+    except Exception as e:
+        print("Error getting all categories:", e)
+        return []
+    finally:
+        con.close()
 
+def get_all_users():
+    con = database.connect()
+    if con is None:
+        return []
+    try:
+        cur = con.cursor()
+        cur.execute("SELECT DISTINCT username FROM users ORDER BY username ASC")
+        return [row[0] for row in cur.fetchall()]
+    except Exception as e:
+        print("Error getting all users:", e)
+        return []
+    finally:
+        con.close()
+
+
+    
 def add_transaction(
     user_id,
     transaction_type,
@@ -78,11 +106,9 @@ def add_transaction(
 
 
 # ---------------------------------------------------------------------
-# IINSERT GET TRANSACTIONS FUNCTIONS
-
-
-def get_transactions():
-
+# GET TRANSACTIONS FUNCTIONS
+# ---------------------------------------------------------------------
+def get_transactions(category_filter=None, user_filter=None):
     con = database.connect()
 
     if con is None:
@@ -91,7 +117,8 @@ def get_transactions():
     try:
         cur = con.cursor()
        
-        cur.execute("""
+        # Base query to fetch transactions along with category details and author username
+        query = """
              SELECT
                 transactions.id,
                 transactions.date,
@@ -107,10 +134,25 @@ def get_transactions():
 
             LEFT JOIN users
             ON transactions.created_by = users.id
-                
-            ORDER BY transactions.date DESC
-        """)
-        
+            
+            WHERE 1=1
+        """
+        params = []
+
+        # Filter by Category name
+        if category_filter and category_filter != "All":
+            query += " AND categories.name = ?"
+            params.append(category_filter)
+
+        # Filter by User's username
+        if user_filter and user_filter != "All":
+            query += " AND users.username = ?"
+            params.append(user_filter)
+
+        # Default sorting by Date DESC
+        query += " ORDER BY transactions.date DESC"
+
+        cur.execute(query, tuple(params))
         return cur.fetchall()
 
     except Exception as error:
@@ -160,6 +202,7 @@ class TransactionsFrame:
 
         # Build interface
         self.create_form()
+        self.create_filter_bar()
         self.create_table()
         self.load_transactions()
 
@@ -485,16 +528,18 @@ class TransactionsFrame:
             for row in self.tree.get_children():
                 self.tree.delete(row)
 
-          # Get current logged-in user
-            current_user = auth.get_user()
+            # Get filter values safely using default fallback if filter widgets are not initialized yet
+            category_filter = self.filter_category_var.get() if hasattr(self, 'filter_category_var') else "All"
+            user_filter = self.filter_user_var.get() if hasattr(self, 'filter_user_var') else "All"
 
-          # Load transactions depending on role
-            transactions = get_transactions()
-               
+            # Load filtered transactions from database
+            transactions = get_transactions(
+                category_filter=category_filter,
+                user_filter=user_filter
+            )
 
-         # Insert transactions into table
+            # Insert transactions into table
             for transaction in transactions:
-                print(transaction)
                 self.tree.insert("", tk.END, values=transaction)
 
         except Exception as error:
@@ -502,6 +547,101 @@ class TransactionsFrame:
                 "Error",
                 f"Could not load transactions:\n{error}"
             )
+
+    def create_filter_bar(self):
+        # Create a horizontal frame for the filter controls (card look)
+        self.filter_frame = tk.LabelFrame(
+            self.frame,
+            text="Filter Transactions",
+            bg=style.COLOR_BG_CARD,
+            fg=style.COLOR_TEXT_MAIN,
+            font=(style.FONT_FAMILY, 10, "bold"),
+            padx=15,
+            pady=10
+        )
+        self.filter_frame.pack(fill="x", pady=10)
+
+        # 1. Category Filter
+        tk.Label(
+            self.filter_frame,
+            text="Category:",
+            bg=style.COLOR_BG_CARD,
+            fg=style.COLOR_TEXT_MAIN,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
+        ).pack(side="left", padx=(10, 5))
+
+        self.filter_category_var = tk.StringVar(value="All")
+        self.filter_category_combo = ttk.Combobox(
+            self.filter_frame,
+            textvariable=self.filter_category_var,
+            state="readonly",
+            width=15,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
+        )
+        self.filter_category_combo.pack(side="left", padx=5)
+        self.filter_category_combo.bind("<<ComboboxSelected>>", lambda event: self.load_transactions())
+
+        # 2. User Filter
+        tk.Label(
+            self.filter_frame,
+            text="User:",
+            bg=style.COLOR_BG_CARD,
+            fg=style.COLOR_TEXT_MAIN,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
+        ).pack(side="left", padx=(20, 5))
+
+        self.filter_user_var = tk.StringVar(value="All")
+        self.filter_user_combo = ttk.Combobox(
+            self.filter_frame,
+            textvariable=self.filter_user_var,
+            state="readonly",
+            width=15,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
+        )
+        self.filter_user_combo.pack(side="left", padx=5)
+        self.filter_user_combo.bind("<<ComboboxSelected>>", lambda event: self.load_transactions())
+
+        # Buttons (Apply & Clear)
+        tk.Button(
+            self.filter_frame,
+            text="Clear Filters",
+            command=self.clear_filters,
+            bg=style.COLOR_DANGER,
+            fg=style.COLOR_LIGHT,
+            font=(style.FONT_FAMILY, 10, "bold"),
+            width=12
+        ).pack(side="right", padx=10)
+
+        tk.Button(
+            self.filter_frame,
+            text="Apply Filters",
+            command=self.load_transactions,
+            bg=style.COLOR_PRIMARY,
+            fg=style.COLOR_LIGHT,
+            font=(style.FONT_FAMILY, 10, "bold"),
+            width=12
+        ).pack(side="right", padx=10)
+
+        # Load filter options dynamically
+        self.populate_filter_combos()
+
+    def populate_filter_combos(self):
+        try:
+            # Populates categories combo
+            cats = get_all_categories()
+            self.filter_category_combo["values"] = ["All"] + cats
+
+            # Populates users combo
+            users = get_all_users()
+            self.filter_user_combo["values"] = ["All"] + users
+
+        except Exception as error:
+            print("Error populating filter combos:", error)
+
+    def clear_filters(self):
+        self.filter_category_var.set("All")
+        self.filter_user_var.set("All")
+        self.load_transactions()
 
 
   

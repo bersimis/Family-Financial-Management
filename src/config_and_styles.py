@@ -5,7 +5,7 @@
 #More info here : https://getbootstrap.com/docs/5.0/utilities/colors/ 
 
 # ------- CONFIGURATION -------
-APP_TITLE = "Domestic Financial Management"
+APP_TITLE = "Family Financial Management"
 APP_DIMENSIONS = "1024x768"
 
 # ----------- STYLES ----------

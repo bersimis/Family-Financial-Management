@@ -272,7 +272,7 @@ class Dashboard:
         #Total Income Card
         self.create_card(
             cards_frame,
-            "Total Income",
+            "My Income",
             f"{total_income:.2f} €",
             style.COLOR_SUCCESS,
             0,
@@ -282,7 +282,7 @@ class Dashboard:
         #Total Expenses Card
         self.create_card(
             cards_frame,
-            "Total Expenses",
+            "My Expenses",
             f"{total_expenses:.2f} €",
             style.COLOR_DANGER,
             0,
@@ -292,7 +292,7 @@ class Dashboard:
         #Current Balance Card
         self.create_card(
             cards_frame,
-            "Current Balance",
+            "My Balance",
             f"{balance:.2f} €",
             style.COLOR_PRIMARY,
             0,
