@@ -365,12 +365,16 @@ class TransactionsFrame:
             ).grid(row=3, column=2, padx=5, pady=5)
 
         #Input of auto transaction day
-        self.auto_transaction_day_entry=tk.Entry(
+        self.auto_transaction_day_entry = tk.Spinbox(
             form,
-            width=21,
-            font=style.COLOR_BG_CARD,
+            from_=-1,
+            to=31,
+            width=19,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_INPUT),
+            bg=style.COLOR_BG_CARD,
             fg=style.COLOR_TEXT_MAIN
         )
+        
 
         self.auto_transaction_day_entry.grid(
             row=3,
