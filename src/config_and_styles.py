@@ -1,7 +1,7 @@
 #config_and_styles.py
 #here we will store GUI information about dimentions and styles, colors etc
 
-# Using Bootstrap 5 palette for a moder look
+#Using Bootstrap 5 palette
 #More info here : https://getbootstrap.com/docs/5.0/utilities/colors/ 
 
 # ------- CONFIGURATION -------

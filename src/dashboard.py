@@ -86,14 +86,14 @@ class Dashboard:
         active_user = auth.get_user()
         username = active_user.username
 
-        user_label = tk.Label(
+        self.user_label = tk.Label(
             self.sidebar,
             text=f"User: {username}",
             bg=style.COLOR_PRIMARY,
             fg=style.COLOR_LIGHT,
             font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
         )
-        user_label.pack(pady=10)
+        self.user_label.pack(pady=10)
 
         #Sidebar Buttons
         tk.Button(
@@ -118,7 +118,7 @@ class Dashboard:
             text="Profile",
             width=20,
             font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON),
-            command=self.show_dashboard
+            command=self.show_profile
         ).pack(pady=(8,50))
 
 
@@ -380,6 +380,12 @@ class Dashboard:
         self.clear_main_area()
         from admin.admin_panel import AdminPanelFrame
         AdminPanelFrame(self.main_area)
+
+    #Navigate to Profile View
+    def show_profile(self):
+        self.clear_main_area()
+        from admin.profile import ProfileFrame
+        ProfileFrame(self, self.main_area)
 
     #Open Categories Window
     def open_categories(self):

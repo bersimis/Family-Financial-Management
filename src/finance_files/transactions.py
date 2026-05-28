@@ -2,7 +2,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import date
-
 # Import project files
 from database import database
 from login_system import auth
@@ -367,7 +366,7 @@ class TransactionsFrame:
         #Input of auto transaction day
         self.auto_transaction_day_entry = tk.Spinbox(
             form,
-            from_=-1,
+            from_=1,
             to=31,
             width=19,
             state="readonly",
