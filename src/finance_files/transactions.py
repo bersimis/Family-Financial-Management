@@ -11,7 +11,7 @@ import config_and_styles as style
 
 
 # ---------------------------------------------------------------------
-# FILTER HELPERS
+# FILTER ADDITIONS TO ASSIST FUNCTIONS
 # ---------------------------------------------------------------------
 def get_all_categories():
     con = database.connect()
@@ -370,6 +370,7 @@ class TransactionsFrame:
             from_=-1,
             to=31,
             width=19,
+            state="readonly",
             font=(style.FONT_FAMILY, style.FONT_SIZE_INPUT),
             bg=style.COLOR_BG_CARD,
             fg=style.COLOR_TEXT_MAIN
@@ -480,6 +481,36 @@ class TransactionsFrame:
             amount_text = self.amount_entry.get().strip()
             transaction_date = self.date_entry.get().strip()
             is_monthly = self.monthly_var.get()
+
+            #Adding validation error function
+            auto_transaction_date = self.date_entry.get().strip()
+            is_montly = self.monthly_var.get()
+
+            auto_transcaction_day = self.auto_transaction_day_entry.get().strip()
+
+            if is_monthly ==1:
+
+                try:
+                    auto_transaction_day = int(auto_transcaction_day)
+
+                    if auto_transaction_day < 1 or auto_transaction_day > 31:
+                       messagebox.showarning(
+                           "Validation Error",
+                           "Auto Transaction Day must be between 1 and 31."
+                    )
+                    return
+                except ValueError:
+                    messagebox.showwarning(
+                        "Validation Error",
+                        "Auto Transaction Day must be a number."
+                    )
+                    return
+                except ValueError:
+                    messagebox.showwarning(
+                        "Validation Error",
+                        "Auto Transaction Day must be a number."
+                    )
+                    return
 
             # Validate category
             if not category:
