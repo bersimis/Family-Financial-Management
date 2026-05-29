@@ -118,13 +118,8 @@ class Dashboard:
             text="Profile",
             width=20,
             font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON),
-<<<<<<< HEAD
-            command=self.show_dashboard
-        ).pack(pady=(8))
-=======
             command=self.show_profile
         ).pack(pady=(8,50))
->>>>>>> b88fcf559c9008f191124fd035a4fbabbcad00e3
 
 #Giannis changes
         tk.Button(
