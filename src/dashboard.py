@@ -118,9 +118,23 @@ class Dashboard:
             text="Profile",
             width=20,
             font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON),
+<<<<<<< HEAD
+            command=self.show_dashboard
+        ).pack(pady=(8))
+=======
             command=self.show_profile
         ).pack(pady=(8,50))
+>>>>>>> b88fcf559c9008f191124fd035a4fbabbcad00e3
 
+#Giannis changes
+        tk.Button(
+            self.sidebar,
+            text="Analytics",
+            width=20,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON),
+            command=self.show_analytics
+        ).pack(pady=8)
+#Giannis changes
 
         if active_user.role_id == 1:
             tk.Button(
@@ -410,6 +424,86 @@ class Dashboard:
             auth.destroy_user()
             login.build_login_gui(self.root)
 
+# Giannis
+    def show_analytics(self):
+        self.clear_main_area()
+        
+        # Τίτλος Οθόνης
+        tk.Label(
+            self.main_area,
+            text="Analytics & Reports",
+            bg=style.COLOR_BG_MAIN,
+            fg=style.COLOR_TEXT_MAIN,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_TITLE, "bold")
+        ).pack(pady=10)
+        
+        active_user = auth.get_user()
+        user_id = active_user.id if active_user else 1
+        
+        # Frame για το Dropdown μενού
+        filter_frame = tk.Frame(self.main_area, bg=style.COLOR_BG_MAIN)
+        filter_frame.pack(pady=10)
+        
+        tk.Label(
+            filter_frame,
+            text="Επιλογή Αναφοράς:",
+            bg=style.COLOR_BG_MAIN,
+            fg=style.COLOR_TEXT_MAIN,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
+        ).pack(side="left", padx=5)
+        
+        # Dropdown (Combobox)
+        self.chart_var = tk.StringVar()
+        from tkinter import ttk
+        chart_combo = ttk.Combobox(
+            filter_frame,
+            textvariable=self.chart_var,
+            values=[
+                "Κατανομή μηνιαίων εξόδων ανά κατηγορία",
+                "Κατανομή μηνιαίων εσόδων ανά κατηγορία",
+                "Σύγκριση συνολικών εσόδων και εξόδων"
+            ],
+            state="readonly",
+            width=40,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
+        )
+        chart_combo.pack(side="left", padx=5)
+        
+        # Χώρος εμφάνισης του γραφήματος
+        display_frame = tk.Frame(self.main_area, bg=style.COLOR_BG_MAIN)
+        display_frame.pack(fill="both", expand=True, pady=10)
+        
+        from finance_files import charts
+        
+        # Event handler για την αλλαγή επιλογής
+        def on_chart_change(event):
+            selection = self.chart_var.get()
+            if selection == "Κατανομή μηνιαίων εξόδων ανά κατηγορία":
+                charts.draw_pie_chart(display_frame, user_id, 'expense')
+            elif selection == "Κατανομή μηνιαίων εσόδων ανά κατηγορία":
+                charts.draw_pie_chart(display_frame, user_id, 'income')
+            elif selection == "Σύγκριση συνολικών εσόδων και εξόδων":
+                charts.draw_balance_chart(display_frame, user_id)
+                
+        chart_combo.bind("<<ComboboxSelected>>", on_chart_change)
+        
+        # Αρχική προεπιλογή (Κατανομή Εξόδων)
+        chart_combo.current(0)
+        charts.draw_pie_chart(display_frame, user_id, 'expense')
+        
+        # Κουμπί Εξαγωγής σε Excel
+        from finance_files import export
+        tk.Button(
+            self.main_area,
+            text="Εξαγωγή σε Excel",
+            command=lambda: export.export_to_excel(user_id),
+            bg=style.COLOR_PRIMARY,
+            fg=style.COLOR_LIGHT,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON, "bold"),
+            width=20
+        ).pack(pady=15)
+
+
 
 #-------------------------------------------------------------------------
 #Legacy routing compatibility for other modules
@@ -446,3 +540,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
