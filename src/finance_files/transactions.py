@@ -2,6 +2,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import date
+import logging
 # Import project files
 from database import database
 from login_system import auth
@@ -21,6 +22,7 @@ def get_all_categories():
         cur.execute("SELECT DISTINCT name FROM categories ORDER BY name ASC")
         return [row[0] for row in cur.fetchall()]
     except Exception as e:
+        logging.exception("Error getting all categories from database.")
         print("Error getting all categories:", e)
         return []
     finally:
@@ -35,6 +37,7 @@ def get_all_users():
         cur.execute("SELECT DISTINCT username FROM users ORDER BY username ASC")
         return [row[0] for row in cur.fetchall()]
     except Exception as e:
+        logging.exception("Error getting all users from database.")
         print("Error getting all users:", e)
         return []
     finally:
@@ -98,6 +101,7 @@ def add_transaction(
         con.commit()
 
     except Exception as error:
+        logging.exception("Error adding transaction to database.")
         print("Error adding transaction:", error)
 
     finally:
@@ -155,6 +159,7 @@ def get_transactions(category_filter=None, user_filter=None):
         return cur.fetchall()
 
     except Exception as error:
+        logging.exception("Error loading transactions from database.")
         print("Error loading transactions:", error)
         return []
 
@@ -183,6 +188,7 @@ def delete_transaction(transaction_id):
         con.commit()
 
     except Exception as error:
+        logging.exception("Error deleting transaction from database.")
         print("Error deleting transaction:", error)
 
     finally:
@@ -467,6 +473,7 @@ class TransactionsFrame:
                 self.category_var.set("")
 
         except Exception as error:
+            logging.exception("Could not load categories in UI.")
             messagebox.showerror("Error", f"Could not load categories:\n{error}")
 
     def save_transaction(self):
@@ -553,6 +560,7 @@ class TransactionsFrame:
             messagebox.showerror("Error", "Amount must be a valid number.")
 
         except Exception as error:
+            logging.exception("Could not save transaction in UI.")
             messagebox.showerror("Error", f"Could not save transaction:\n{error}")
 
 
@@ -577,6 +585,7 @@ class TransactionsFrame:
                 self.tree.insert("", tk.END, values=transaction)
 
         except Exception as error:
+            logging.exception("Could not load transactions in UI.")
             messagebox.showerror(
                 "Error",
                 f"Could not load transactions:\n{error}"
@@ -670,6 +679,7 @@ class TransactionsFrame:
             self.filter_user_combo["values"] = ["All"] + users
 
         except Exception as error:
+            logging.exception("Error populating filter combos in UI.")
             print("Error populating filter combos:", error)
 
     def clear_filters(self):
@@ -716,4 +726,5 @@ class TransactionsFrame:
             self.load_transactions()
 
         except Exception as error:
+            logging.exception("Could not delete selected transaction in UI.")
             messagebox.showerror("Error", f"Could not delete transaction:\n{error}")

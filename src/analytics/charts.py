@@ -1,5 +1,6 @@
 #charts.py
 import tkinter as tk
+import logging
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from database import database
@@ -25,7 +26,7 @@ def get_data(user_id, query_type):
             """, (user_id,))
             data = cur.fetchall()
         elif query_type == 'balance':
-            # Total Income
+            #Total Income
             cur.execute("""
                 SELECT SUM(t.amount) FROM transactions t
                 JOIN categories c ON t.category_id = c.id
@@ -33,7 +34,7 @@ def get_data(user_id, query_type):
             """, (user_id,))
             inc = cur.fetchone()[0] or 0
             
-            # Total Expenses
+            #Total Expenses
             cur.execute("""
                 SELECT SUM(t.amount) FROM transactions t
                 JOIN categories c ON t.category_id = c.id
@@ -42,7 +43,8 @@ def get_data(user_id, query_type):
             exp = cur.fetchone()[0] or 0
             data = [inc, exp]
     except Exception as e:
-        print(f"Σφάλμα βάσης: {e}")
+        logging.exception("Error fetching chart data from database.")
+        print(f"Database error: {e}")
     finally:
         con.close()
     return data
@@ -56,7 +58,7 @@ def draw_pie_chart(parent_frame, user_id, chart_type):
     data = get_data(user_id, chart_type)
     
     if not data:
-        tk.Label(parent_frame, text="Δεν υπάρχουν δεδομένα.", bg=style.COLOR_BG_MAIN).pack(pady=20)
+        tk.Label(parent_frame, text="No data available.", bg=style.COLOR_BG_MAIN).pack(pady=20)
         return
 
     labels = [row[0] for row in data]
@@ -66,7 +68,7 @@ def draw_pie_chart(parent_frame, user_id, chart_type):
     fig.patch.set_facecolor(style.COLOR_BG_MAIN)
     
     ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
-    title = "Κατανομή Εξόδων" if chart_type == 'expense' else "Κατανομή Εσόδων"
+    title = "Expense Distribution" if chart_type == 'expense' else "Income Distribution"
     ax.set_title(title, fontweight='bold')
 
     canvas = FigureCanvasTkAgg(fig, master=parent_frame)
@@ -81,12 +83,12 @@ def draw_balance_chart(parent_frame, user_id):
     fig.patch.set_facecolor(style.COLOR_BG_MAIN)
     ax.set_facecolor(style.COLOR_BG_MAIN)
 
-    labels = ['Έσοδα', 'Έξοδα']
-    colors = ['#198754', '#dc3545'] # Πράσινο και Κόκκινο
+    labels = ['Income', 'Expenses']
+    colors = ['#198754', '#dc3545'] #GreenAndRed
     
     ax.bar(labels, data, color=colors, width=0.5)
-    ax.set_title("Σύγκριση Εσόδων - Εξόδων", fontweight='bold')
-    ax.set_ylabel("Ποσό (€)")
+    ax.set_title("Income - Expense Comparison", fontweight='bold')
+    ax.set_ylabel("Amount (€)")
 
     canvas = FigureCanvasTkAgg(fig, master=parent_frame)
     canvas.draw()

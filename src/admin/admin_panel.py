@@ -3,6 +3,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import hashlib
+import logging
 from database import database
 import config_and_styles as style
 
@@ -157,6 +158,7 @@ class AdminPanelFrame:
                 self.tree.insert("", tk.END, values=user)
 
         except Exception as error:
+            logging.exception("Failed to load users in admin panel.")
             messagebox.showerror("Error", f"Failed to load users:\n{error}")
 
         finally:
@@ -179,6 +181,7 @@ class AdminPanelFrame:
             self.role_combo["values"] = list(self.roles_map.keys())
 
         except Exception as error:
+            logging.exception("Failed to load roles in admin panel.")
             messagebox.showerror("Error", f"Failed to load roles:\n{error}")
 
         finally:
@@ -232,6 +235,7 @@ class AdminPanelFrame:
             self.load_users()
 
         except Exception as error:
+            logging.exception("Failed to update user role in admin panel.")
             messagebox.showerror("Error", f"Failed to update role:\n{error}")
 
         finally:
@@ -270,6 +274,7 @@ class AdminPanelFrame:
             messagebox.showinfo("Success", "password reseted")
 
         except Exception as error:
+            logging.exception("Failed to reset user password in admin panel.")
             messagebox.showerror("Error", f"Failed to reset password:\n{error}")
 
         finally:

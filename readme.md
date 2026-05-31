@@ -27,7 +27,7 @@ The following flowchart shows the process of user authentication, from login to 
 
 This diagram illustrates the database structure and relationships between the core entities of the application.
 
-![Database ERD](docs/database/ERD.png)
+![Database ERD](docs/database/ERD.png?v=2)
 
 ## Built With
 

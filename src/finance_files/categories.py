@@ -1,5 +1,6 @@
 # Import tkinter library for GUI creation
 import tkinter as tk
+import logging
 
 # Import ttk for advanced widgets and messagebox for popup messages
 from tkinter import ttk, messagebox
@@ -36,6 +37,7 @@ def get_categories(user_id, category_type):
         return cur.fetchall()
 
     except Exception as error:
+        logging.exception("Error loading categories from database.")
         print("Error loading categories:", error)
         return []
 
@@ -63,6 +65,7 @@ def add_category(user_id, category_name, category_type):
         con.commit()
 
     except Exception as error:
+        logging.exception("Error adding category to database.")
         print("Error adding category:", error)
 
     finally:
@@ -89,6 +92,7 @@ def delete_category(category_id):
         con.commit()
 
     except Exception as error:
+        logging.exception("Error deleting category from database.")
         print("Error deleting category:", error)
 
     finally:
@@ -265,6 +269,7 @@ class CategoriesWindow:
                 self.tree.insert("", tk.END, values=category)
 
         except Exception as error:
+            logging.exception("Could not load categories in UI.")
             messagebox.showerror(
                 "Error",
                 f"Could not load categories:\n{error}"
@@ -305,6 +310,7 @@ class CategoriesWindow:
             self.load_categories()
 
         except Exception as error:
+            logging.exception("Could not add category in UI.")
             messagebox.showerror(
                 "Error",
                 f"Could not add category:\n{error}"
@@ -352,6 +358,7 @@ class CategoriesWindow:
             self.load_categories()
 
         except Exception as error:
+            logging.exception("Could not delete category in UI.")
             messagebox.showerror(
                 "Error",
                 f"Could not delete category:\n{error}"

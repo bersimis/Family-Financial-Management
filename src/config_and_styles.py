@@ -13,7 +13,7 @@ APP_DIMENSIONS = "1024x768"
 COLOR_BG_MAIN = "#f8f9fa"     #Bootstrap 'Light' background
 COLOR_BG_CARD = "#ffffff"     #Pure white for containers/cards
 
-# Text Colors
+#Text Colors
 COLOR_TEXT_MAIN = "#212529"   #Bootstrap 'Dark' for primary text
 COLOR_TEXT_MUTED = "#6c757d"  #Bootstrap 'Muted' for secondary info
 

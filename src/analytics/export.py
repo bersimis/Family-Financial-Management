@@ -1,15 +1,16 @@
 #export.py
 import pandas as pd
+import logging
 from tkinter import filedialog, messagebox
 from database import database
 
 def export_to_excel(user_id):
     con = database.connect()
     try:
-        # Extracting data with SQL JOIN
+        #Extracting data with SQL JOIN
         query = """
-            SELECT t.date as 'Ημ/νία', c.type as 'Τύπος', c.name as 'Κατηγορία', 
-                   t.amount as 'Ποσό', t.is_monthly as 'Μηνιαίο', u.username as 'Χρήστης'
+            SELECT t.date as 'Date', c.type as 'Type', c.name as 'Category', 
+                   t.amount as 'Amount', t.is_monthly as 'Monthly', u.username as 'User'
             FROM transactions t
             JOIN categories c ON t.category_id = c.id
             JOIN users u ON t.created_by = u.id
@@ -18,18 +19,19 @@ def export_to_excel(user_id):
 
         df = pd.read_sql_query(query, con, params=(user_id,))
         
-        # Open storage window
+        #Open storage window
         filepath = filedialog.asksaveasfilename(
             defaultextension=".xlsx",
             filetypes=[("Excel Files", "*.xlsx")],
-            title="Αποθήκευση ως Excel"
+            title="Save as Excel"
         )
         
         if filepath:
             df.to_excel(filepath, index=False)
-            messagebox.showinfo("Επιτυχία", "Η εξαγωγή ολοκληρώθηκε επιτυχώς!")
+            messagebox.showinfo("Success", "Export completed successfully!")
             
     except Exception as e:
-        messagebox.showerror("Σφάλμα", f"Αποτυχία εξαγωγής: {e}")
+        logging.exception("Error exporting transactions to Excel.")
+        messagebox.showerror("Error", f"Export failed: {e}")
     finally:
         con.close()
