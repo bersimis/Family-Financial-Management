@@ -12,7 +12,7 @@ import config_and_styles as style
 error_label = None # Set it as None globally
 #-------------------------------------------------------------------------
 def start_login(input_user,input_password, root):
-    global error_label # Access the global label variable
+    global error_label #Access the global label variable
     error_label.config(text="")
     
     #Here we will connect user by checking the right credentials after button click
@@ -21,7 +21,7 @@ def start_login(input_user,input_password, root):
     username = input_user.get() #get string from widget
     password = input_password.get() #get string from widget
     
-    # Check if fields are empty before database call
+    #Check if fields are empty before database call
     if not username or not password:
         error_label.config(text="Please fill all fields") #error to show the user
         return
