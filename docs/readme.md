@@ -4,69 +4,52 @@ Welcome to the Family Finance Management application repository. This document o
 
 ## 1. Project Structure
 
-To keep the code clean, avoid circular imports, and prevent massive, unreadable files, the project is divided into the following standalone `.py` files.
+To keep the code clean, avoid circular imports, and prevent massive, unreadable files, the project is divided into structured folders and files inside the `src/` directory.
 
 ### Core & Database
 
-- `main.py`: The entry point of the application. Its only job is to initialize and call `login.py`.
-- `database.py`: The "warehouse" of the app. It contains only SQL queries (SQLite). This is the only file that communicates directly with the database (`finance.db`). All other files call functions from here.
-- `session.py`: Manages the application state. It stores the ID and username of the currently logged-in user so that all other files can access them.
+- `src/dashboard.py`: The entry point of the application. It contains the main window GUI shell, navigation sidebar, financial summary calculations, and executes the application main loop.
+- `src/database/database.py`: The connection manager of the app. It connects to the SQLite database (`financial_management.db`) and handles schema creation.
+- `src/config_and_styles.py`: Defines global variables, styling constants, theme colors, dimensions, and typography settings used throughout all GUI windows to maintain visual consistency.
 
 ### Authentication
 
-- `login.py`: The graphical user interface (Tkinter) and logic for user login. It verifies credentials via `database.py` and, if successful, updates `session.py` and opens the Dashboard.
-- `register.py`: The new user registration form. Includes necessary validations (e.g., checking if the username already exists) and secure password storage (hashing).
+- `src/login_system/auth.py`: Manages the session state. It stores the `User` object (ID, username, and role ID) of the currently logged-in user so that all other views can verify permission.
+- `src/login_system/login.py`: The graphical user interface (Tkinter) and logic for user login. It verifies hashed credentials via the database and, if successful, updates `auth.py` and opens the Dashboard.
+- `src/login_system/register.py`: The new user registration form. Includes necessary validations (username format, password complexity, birth year check) and secure password storage (hashing).
 
 ### Main UI
 
-- `dashboard.py`: The main window of the application. It contains the navigation menu and acts as a "canvas" where other sub-components (graphics, forms) are loaded.
-- `transactions.py`: The form for entering new income/expenses and the main table (Treeview) displaying the current month's transactions.
-- `categories.py`: A management window (add/delete) for available income and expense categories (e.g., Salary, Electricity, Supermarket).
+- `src/finance_files/transactions.py`: The form for entering new transactions, the table (Treeview) displaying transactions, and the automatic monthly transaction generation system.
+- `src/finance_files/categories.py`: A management window (add/delete) for available income and expense categories (e.g., Salary, Rent, Supermarket).
+- `src/admin/admin_panel.py`: Handles admin-only privileges (user listing, role dropdown updates, password resets).
+- `src/admin/profile.py`: Form for active users to update their username and change password with verification.
 
 ### Data Analysis & Export
 
-- `summary.py`: Handles calculations (summing income, subtracting expenses) and returns the current balance and total amounts to be displayed on the Dashboard.
-- `charts.py`: Connects with the `matplotlib` library to create charts, which are embedded into the Tkinter interface.
-- `export.py`: Implements the project requirement for exporting user data to an Excel file (`.xlsx`) for further processing.
+- `src/analytics/charts.py`: Connects with the `matplotlib` library to create pie and bar charts embedded directly into the Tkinter window.
+- `src/analytics/export.py`: Exports transaction records for the active user to a Microsoft Excel file (`.xlsx`) using pandas.
 
 ## 2. Tasks per person
 
-The development of the application will be carried out in parallel by the 3 team members. Each member is assigned specific files to prevent code conflicts (merge conflicts) on GitHub.
+The development of the application is carried out in parallel by the 3 team members, organized by directories and components.
 
 ### Member 1: Core Architect & Security Lead
-
-Takes charge of the system foundations, the database, and user security.
-
-**Files**: `database.py`, `session.py`, `login.py`, `register.py`, `main.py`
-
+**Files**: `src/database/`, `src/login_system/`, `src/admin/`, `src/config_and_styles.py`
 **Responsibilities**:
-
-- Design SQLite tables (Users, Transactions, Categories).
-- Implement all SQL CRUD (Create, Read, Update, Delete) functions.
-- Create the Login/Register system with password validation and hashing.
-- Set up `session.py` to keep the active user in memory.
+- Design SQLite tables (`roles`, `users`, `categories`, `transactions`).
+- Implement user authentication, registration, profiles, and password hashing.
+- Manage user session states and admin user management panel.
 
 ### Member 2: UI & Transactions Manager
-
-Takes charge of building the main screen and the core financial entry functionality.
-
-**Files**: `dashboard.py`, `transactions.py`, `categories.py`
-
+**Files**: `src/dashboard.py`, `src/finance_files/`
 **Responsibilities**:
-
 - Create the main window (Dashboard) with the sidebar navigation menu.
-- Build the "Income / Expense Entry" form (Tkinter widgets).
-- Develop the dynamic table (Treeview) that displays transactions.
-- Connect the UI with `database.py` to save/read transactions.
+- Build the transactions table, filter bar, and category windows.
+- Connect the UI forms with database functions to insert and delete data.
 
 ### Member 3: Data Analyst & Visuals
-
-Takes charge of data visualization, calculations, and report generation.
-
-**Files**: `summary.py`, `charts.py`, `export.py`
-
+**Files**: `src/analytics/`
 **Responsibilities**:
-
-- Calculate total income, expenses, and current balance.
-- Integrate `matplotlib` into Tkinter to create dynamic charts (like monthly expense analysis).
-- Create the functionality to export the transaction table to an Excel file.
+- Develop data visualization graphs (pie charts, comparisons) using Matplotlib.
+- Handle Excel file export logic.
