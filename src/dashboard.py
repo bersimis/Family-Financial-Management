@@ -488,17 +488,30 @@ class Dashboard:
         chart_combo.current(0)
         charts.draw_pie_chart(display_frame, user_id, 'expense')
         
-        #ExcelExportButton
+        #ExcelExportButtons
         from analytics import export
+        export_frame = tk.Frame(self.main_area, bg=style.COLOR_BG_MAIN)
+        export_frame.pack(pady=15)
+
         tk.Button(
-            self.main_area,
-            text="Export to Excel",
+            export_frame,
+            text="Export My Data",
             command=lambda: export.export_to_excel(user_id),
             bg=style.COLOR_PRIMARY,
             fg=style.COLOR_LIGHT,
             font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON, "bold"),
             width=20
-        ).pack(pady=15)
+        ).pack(side="left", padx=10)
+
+        tk.Button(
+            export_frame,
+            text="Export Family Data",
+            command=lambda: export.export_to_excel(None),
+            bg=style.COLOR_SUCCESS,
+            fg=style.COLOR_LIGHT,
+            font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON, "bold"),
+            width=20
+        ).pack(side="left", padx=10)
 
 
 #-------------------------------------------------------------------------
