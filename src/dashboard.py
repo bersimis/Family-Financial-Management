@@ -1,6 +1,6 @@
-# Dashboard.py
-# This py file will handle the dashboard section and main application shell.
-# This is the entry point; all file paths and views are routed from here.
+#Dashboard.py
+#This py file will handle the dashboard section and main application shell.
+#This is the entry point; all file paths and views are routed from here.
 import os
 import logging
 import tkinter as tk
@@ -16,7 +16,6 @@ from finance_files.categories import CategoriesWindow
 from admin import admin_panel
 #Import global configuration and styles
 import config_and_styles as style
-
 
 
 #-------------------------------------------------------------------------
@@ -112,7 +111,6 @@ class Dashboard:
             command=self.show_transactions
         ).pack(pady=8)
 
-        
         tk.Button(
             self.sidebar,
             text="Profile",
@@ -307,9 +305,7 @@ class Dashboard:
         )
 
 
-   #Family income-expenses, balance tabs
-    
-
+        #Family income-expenses, balance tabs
         self.create_card(
             cards_frame,
             "Family Income",
@@ -451,12 +447,15 @@ class Dashboard:
             filter_frame,
             textvariable=self.chart_var,
             values=[
-                "Monthly expense distribution by category",
-                "Monthly income distribution by category",
-                "Comparison of total income and expenses"
+                "My monthly expense distribution",
+                "My monthly income distribution",
+                "My comparison of total income and expenses",
+                "Family expense distribution",
+                "Family income distribution",
+                "Family comparison of total income and expenses"
             ],
             state="readonly",
-            width=40,
+            width=45,
             font=(style.FONT_FAMILY, style.FONT_SIZE_TEXT)
         )
         chart_combo.pack(side="left", padx=5)
@@ -470,16 +469,22 @@ class Dashboard:
         #EventHandlerForSelectionChange
         def on_chart_change(event):
             selection = self.chart_var.get()
-            if selection == "Monthly expense distribution by category":
+            if selection == "My monthly expense distribution":
                 charts.draw_pie_chart(display_frame, user_id, 'expense')
-            elif selection == "Monthly income distribution by category":
+            elif selection == "My monthly income distribution":
                 charts.draw_pie_chart(display_frame, user_id, 'income')
-            elif selection == "Comparison of total income and expenses":
+            elif selection == "My comparison of total income and expenses":
                 charts.draw_balance_chart(display_frame, user_id)
+            elif selection == "Family expense distribution":
+                charts.draw_family_pie_chart(display_frame, 'expense')
+            elif selection == "Family income distribution":
+                charts.draw_family_pie_chart(display_frame, 'income')
+            elif selection == "Family comparison of total income and expenses":
+                charts.draw_family_balance_chart(display_frame)
                 
         chart_combo.bind("<<ComboboxSelected>>", on_chart_change)
         
-        #DefaultInitialSelection(ExpenseDistribution)
+        #DefaultInitialSelection
         chart_combo.current(0)
         charts.draw_pie_chart(display_frame, user_id, 'expense')
         
@@ -494,7 +499,6 @@ class Dashboard:
             font=(style.FONT_FAMILY, style.FONT_SIZE_BUTTON, "bold"),
             width=20
         ).pack(pady=15)
-
 
 
 #-------------------------------------------------------------------------
@@ -532,4 +536,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
