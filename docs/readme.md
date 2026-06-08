@@ -30,7 +30,18 @@ To keep the code clean, avoid circular imports, and prevent massive, unreadable 
 - `src/analytics/charts.py`: Connects with the `matplotlib` library to create pie and bar charts embedded directly into the Tkinter window.
 - `src/analytics/export.py`: Exports transaction records for the active user to a Microsoft Excel file (`.xlsx`) using pandas.
 
-## 2. Tasks per person
+---
+
+## 2. Role-Based Access Control (RBAC)
+
+The application enforces security privileges based on the user's role:
+*   **Admin (Role ID: 1)**: Full read and write permissions across all views, and exclusive access to the Admin Panel for user management, role updates, and password resets.
+*   **Editor (Role ID: 2)**: Full read and write access to transactions and categories, but cannot access the Admin Panel.
+*   **Viewer (Role ID: 3)**: Read-only access. The input form and delete controls on the Transactions screen are hidden, and all backend operations block any additions or deletions for transactions and categories.
+
+---
+
+## 3. Tasks per person
 
 The development of the application is carried out in parallel by the 3 team members, organized by directories and components.
 
@@ -53,3 +64,39 @@ The development of the application is carried out in parallel by the 3 team memb
 **Responsibilities**:
 - Develop data visualization graphs (pie charts, comparisons) using Matplotlib.
 - Handle Excel file export logic.
+
+---
+
+## 4. Packaging the Application (PyInstaller)
+
+To compile the application into a standalone Windows executable (`.exe`), follow these exact instructions:
+
+### Prerequisites
+1. Ensure Python 3 is installed.
+2. Install the required third-party libraries:
+   ```bash
+   pip install pandas matplotlib openpyxl xlsxwriter pyinstaller
+   ```
+
+### Compilation Command
+From the root directory of the project, run the following command in PowerShell or Command Prompt:
+```bash
+py -m PyInstaller --noconsole --onefile --paths=src --name="Family Financial Management" src/dashboard.py
+```
+
+### Explanation of flags:
+*   `--noconsole`: Hides the command-line console window, showing only the graphical interface (GUI).
+*   `--onefile`: Bundles the entire application and all its dependencies into a single executable file.
+*   `--paths=src`: Tells PyInstaller to resolve project modules inside the `src/` directory.
+*   `--name="Family Financial Management"`: Sets the name of the generated executable.
+*   `src/dashboard.py`: Specifies the main entry point of the application.
+
+### Output
+*   The generated executable will be located in the **`dist/`** directory (`dist/Family Financial Management.exe`).
+*   The build configuration file will be saved as `Family Financial Management.spec`.
+*   All build process temporary files will be stored in the `build/` directory.
+*   Note: The `build/`, `dist/`, and `*.spec` paths are added to `.gitignore` to keep the source control clean.
+
+### Running the Executable
+*   Copy the `Family Financial Management.exe` file from the `dist/` directory and place it anywhere on a Windows computer.
+*   On the first run, the executable will automatically create the `database/` folder (containing `financial_management.db`) and the `logs/` folder (containing `app.log`) in the same directory where it is executed. No other files are required to be distributed with it.
