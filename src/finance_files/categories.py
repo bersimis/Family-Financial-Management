@@ -277,6 +277,12 @@ class CategoriesWindow:
 
     def add_category(self):
         try:
+            #Prevent viewers from modifying categories
+            current_user = auth.get_user()
+            if current_user and current_user.role_id == 3:
+                messagebox.showwarning("Permission Error", "Viewers are not allowed to make changes.")
+                return
+
             # Get current user id from auth.py
             user_id = self.get_current_user_id()
 
@@ -317,6 +323,12 @@ class CategoriesWindow:
             )
 
     def delete_category(self):
+        #Prevent viewers from deleting categories
+        current_user = auth.get_user()
+        if current_user and current_user.role_id == 3:
+            messagebox.showwarning("Permission Error", "Viewers are not allowed to make changes.")
+            return
+
         # Get selected row
         selected_item = self.tree.selection()
 

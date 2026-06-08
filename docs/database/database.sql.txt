@@ -1,16 +1,17 @@
 CREATE TABLE IF NOT EXISTS roles (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE NOT NULL
-        );
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL
+);
 
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT, /* PRIMARY KEY */
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    role     
+    role_id INTEGER NOT NULL,             /* FOREIGN KEY -> roles.id */
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-    birth_year INTEGER NOT NULL,          /* Έτος γέννησης */
-    age INTEGER                           /* Παραγόμενο πεδίο (υπολογίζεται στην Python) */
+    birth_year INTEGER NOT NULL,          /* Birth year */
+    age INTEGER,                          
+    FOREIGN KEY (role_id) REFERENCES roles (id)
 );
 
 CREATE TABLE categories (
@@ -25,5 +26,7 @@ CREATE TABLE transactions (
     amount REAL NOT NULL CHECK(amount >= 0),
     date TEXT NOT NULL,                
     is_monthly INTEGER DEFAULT 0 CHECK(is_monthly IN (0,1)), /* Boolean logic */
-    created_by INTEGER                    /* FOREIGN KEY -> users.id */
+    created_by INTEGER,                   /* FOREIGN KEY -> users.id */
+    FOREIGN KEY (category_id) REFERENCES categories (id),
+    FOREIGN KEY (created_by) REFERENCES users (id)
 );

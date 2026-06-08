@@ -194,6 +194,99 @@ def delete_transaction(transaction_id):
     finally:
         con.close()
 
+#---------------------------------------------------------------------
+#GENERATING MONTHLY RECURRING TRANSACTIONS SYSTEM
+#---------------------------------------------------------------------
+def check_and_generate_recurring_transactions():
+    #This function scans the database for recurring templates (is_monthly = 1)
+    #and automatically generates any missing monthly transactions up to today.
+    con = database.connect()
+    if con is None:
+        return
+    try:
+        cur = con.cursor()
+        
+        #Get all transactions marked as monthly templates
+        cur.execute("""
+            SELECT id, category_id, amount, date, created_by
+            FROM transactions
+            WHERE is_monthly = 1
+        """)
+        templates = cur.fetchall()
+        
+        from datetime import datetime, date, timedelta
+        today = date.today()
+        
+        for template_id, category_id, amount, start_date_str, created_by in templates:
+            try:
+                #Parse start date of the template
+                start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+            except ValueError:
+                continue
+                
+            #Loop through each subsequent month up to today
+            current_month_date = start_date
+            
+            while True:
+                #Calculate the next month's year and month
+                if current_month_date.month == 12:
+                    next_year = current_month_date.year + 1
+                    next_month = 1
+                else:
+                    next_year = current_month_date.year
+                    next_month = current_month_date.month + 1
+                    
+                #We keep the same day (auto transaction day)
+                day = start_date.day
+                
+                #Handle months with fewer days (e.g. 31st of February becomes 28th/29th)
+                while True:
+                    try:
+                        next_date = date(next_year, next_month, day)
+                        break
+                    except ValueError:
+                        day -= 1
+                        if day < 1:
+                            break
+                
+                #If next_date is in the future relative to today, stop generating for this template
+                if next_date > today:
+                    break
+                    
+                #Check if a transaction already exists for this template in next month
+                #We look for same category_id, same amount, same user, and same month/year
+                start_of_month = next_date.replace(day=1).strftime("%Y-%m-%d")
+                
+                if next_month == 12:
+                    end_of_month = date(next_year + 1, 1, 1) - timedelta(days=1)
+                else:
+                    end_of_month = date(next_year, next_month + 1, 1) - timedelta(days=1)
+                end_of_month_str = end_of_month.strftime("%Y-%m-%d")
+                
+                cur.execute("""
+                    SELECT id FROM transactions
+                    WHERE category_id = ?
+                    AND amount = ?
+                    AND created_by = ?
+                    AND date >= ?
+                    AND date <= ?
+                """, (category_id, amount, created_by, start_of_month, end_of_month_str))
+                
+                if cur.fetchone() is None:
+                    #Create the recurring transaction for this month
+                    cur.execute("""
+                        INSERT INTO transactions (category_id, amount, date, is_monthly, created_by)
+                        VALUES (?, ?, ?, ?, ?)
+                    """, (category_id, amount, next_date.strftime("%Y-%m-%d"), 1, created_by))
+                    
+                current_month_date = next_date
+                
+        con.commit()
+    except Exception as e:
+        logging.exception("Error processing recurring transactions.")
+    finally:
+        con.close()
+
 #Object-oriented programming, definition of classes, inheritance
         
 class TransactionsFrame:
@@ -206,7 +299,20 @@ class TransactionsFrame:
         self.frame.pack(expand=True, fill="both", padx=20, pady=20)
 
         # Build interface
-        self.create_form()
+        role_id = self.get_current_user_role_id()
+        if role_id != 3:
+            self.create_form()
+        else:
+            #ShowSimpleTitleForViewer
+            title = tk.Label(
+                self.frame,
+                text="Transactions Table",
+                bg=style.COLOR_BG_MAIN,
+                fg=style.COLOR_TEXT_MAIN,
+                font=(style.FONT_FAMILY, 20, "bold")
+            )
+            title.pack(pady=10)
+            
         self.create_filter_bar()
         self.create_table()
         self.load_transactions()
@@ -478,6 +584,12 @@ class TransactionsFrame:
 
     def save_transaction(self):
         try:
+            #Prevent viewers from modifying data
+            role_id = self.get_current_user_role_id()
+            if role_id == 3:
+                messagebox.showwarning("Permission Error", "Viewers are not allowed to make changes.")
+                return
+
             # Get user id
             user_id = self.get_current_user_id()
 
@@ -489,28 +601,33 @@ class TransactionsFrame:
             is_monthly = self.monthly_var.get()
 
             #Adding validation error function
-            auto_transaction_date = self.date_entry.get().strip()
-            is_montly = self.monthly_var.get()
-
-            auto_transcaction_day = self.auto_transaction_day_entry.get().strip()
-
-            if is_monthly ==1:
-
+            if is_monthly == 1:
                 try:
+                    auto_transcaction_day = self.auto_transaction_day_entry.get().strip()
                     auto_transaction_day = int(auto_transcaction_day)
-
                     if auto_transaction_day < 1 or auto_transaction_day > 31:
-                       messagebox.showarning(
-                           "Validation Error",
-                           "Auto Transaction Day must be between 1 and 31."
-                    )
-                    return
-                except ValueError:
-                    messagebox.showwarning(
-                        "Validation Error",
-                        "Auto Transaction Day must be a number."
-                    )
-                    return
+                        messagebox.showwarning(
+                            "Validation Error",
+                            "Auto Transaction Day must be between 1 and 31."
+                        )
+                        return
+                    
+                    #Adjust day of transaction_date to selected auto_transaction_day
+                    parts = transaction_date.split("-")
+                    if len(parts) == 3:
+                        yr, mn = int(parts[0]), int(parts[1])
+                        dy = auto_transaction_day
+                        #Handle month day limits
+                        while True:
+                            try:
+                                from datetime import date as dt_date
+                                test_date = dt_date(yr, mn, dy)
+                                transaction_date = test_date.strftime("%Y-%m-%d")
+                                break
+                            except ValueError:
+                                dy -= 1
+                                if dy < 1:
+                                    break
                 except ValueError:
                     messagebox.showwarning(
                         "Validation Error",
@@ -566,6 +683,9 @@ class TransactionsFrame:
 
     def load_transactions(self):
         try:
+            #Run automatic monthly transaction generator first
+            check_and_generate_recurring_transactions()
+
             # Clear table
             for row in self.tree.get_children():
                 self.tree.delete(row)
@@ -694,6 +814,12 @@ class TransactionsFrame:
         categories.CategoriesWindow(self.frame)
 
     def delete_selected_transaction(self):
+        #Prevent viewers from deleting data
+        role_id = self.get_current_user_role_id()
+        if role_id == 3:
+            messagebox.showwarning("Permission Error", "Viewers are not allowed to make changes.")
+            return
+
         # Get selected row
         selected_item = self.tree.selection()
 
